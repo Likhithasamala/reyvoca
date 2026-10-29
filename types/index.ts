@@ -104,8 +104,76 @@ export type DemoCall = {
 export type DemoStat = {
   label: string;
   value: string;
-  change: string;
+  /** Omitted for live data, where there is no comparison baseline yet. */
+  change?: string;
   icon: LucideIcon;
+};
+
+/** Outcomes a call can be filed under, used to validate API payloads. */
+export const CALL_OUTCOMES = [
+  "Qualified",
+  "Appointment",
+  "Callback",
+  "Not interested",
+  "Voicemail",
+] as const satisfies readonly CallOutcome[];
+
+/** The signed-in account, as exposed to the browser. Never includes secrets. */
+export type AccountSummary = {
+  id: string;
+  fullName: string;
+  email: string;
+  workspace: string;
+  /** One or two letters for the avatar. */
+  initials: string;
+};
+
+/** Which way a call went. Shared by the dashboard tables. */
+export type CallDirection = "Inbound" | "Outbound";
+
+/** One row of calling activity on the dashboard home. */
+export type ActivityRow = {
+  id: string;
+  contact: string;
+  agent: string;
+  direction: CallDirection;
+  duration: string;
+  outcome: string;
+  time: string;
+};
+
+export type OverviewStats = {
+  agents: number;
+  leads: number;
+  qualifiedLeads: number;
+  callbacks: number;
+};
+
+/** Response body of GET /api/dashboard/overview. */
+export type OverviewPayload = {
+  /**
+   * False for a workspace with nothing stored yet, so the dashboard can fall
+   * back to example rows instead of showing an empty table.
+   */
+  hasData: boolean;
+  workspace: string;
+  stats: OverviewStats;
+  recentActivity: ActivityRow[];
+};
+
+/**
+ * Who the dashboard says you are.
+ *
+ * Resolved from the session on the server: a signed-in account, or the shared
+ * development workspace when nobody is signed in.
+ */
+export type WorkspaceIdentity = {
+  name: string;
+  user: string;
+  initials: string;
+  /** False for the development workspace, which has no account behind it. */
+  signedIn: boolean;
+  email?: string;
 };
 
 export type DocBlock =

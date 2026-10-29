@@ -12,10 +12,10 @@ export function FormNotice({ result }: { result: Failure }) {
       role={informational ? "status" : "alert"}
       className={cn(
         "flex gap-3 rounded-xl border p-4 text-sm leading-relaxed",
-        informational ? "border-brand-soft bg-brand-softer text-ink" : "border-red-200 bg-red-50 text-red-800",
+        informational ? "border-line bg-surface-muted text-ink" : "border-danger-line bg-danger-soft text-danger",
       )}
     >
-      <Info className={cn("mt-0.5 size-4 shrink-0", informational ? "text-brand" : "text-red-600")} aria-hidden="true" />
+      <Info className={cn("mt-0.5 size-4 shrink-0", informational ? "text-accent-strong" : "text-danger")} aria-hidden="true" />
       <p>{result.message}</p>
     </div>
   );

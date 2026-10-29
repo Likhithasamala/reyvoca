@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
+import { brandColors } from "@/config/brand";
 import { siteConfig } from "@/config/site";
 import "./globals.css";
 
@@ -34,7 +35,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: brandColors.canvas,
   colorScheme: "light",
 };
 

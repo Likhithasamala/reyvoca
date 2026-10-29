@@ -56,7 +56,7 @@ export const hero: HeroContent = {
   },
   subtitle:
     "Build voice agents that speak naturally with customers, answer questions, qualify leads, book appointments and follow up — with every conversation captured and summarised.",
-  primaryCta: { label: "Start Free", href: routes.getStarted },
+  primaryCta: { label: "Start Free", href: routes.startFree },
   secondaryCta: { label: "See How It Works", href: "/#how-it-works" },
   valuePoints: ["Natural conversations", "Multilingual ready", "Transcripts for every call"],
 };
@@ -300,7 +300,7 @@ export const pricing = {
       description: "For individuals experimenting with voice agents.",
       priceLabel: "Coming soon",
       features: ["Build and test agents", "Browser-based test calls", "Core transcripts and outcomes", "Community support"],
-      cta: { label: "Start Free", href: routes.getStarted },
+      cta: { label: "Start Free", href: routes.startFree },
     },
     {
       name: "Growth",
@@ -312,7 +312,7 @@ export const pricing = {
         "Knowledge base and actions",
         "Analytics and team seats",
       ],
-      cta: { label: "Start Free", href: routes.getStarted },
+      cta: { label: "Start Free", href: routes.startFree },
       highlighted: true,
     },
     {
@@ -385,6 +385,6 @@ export const faq = {
 export const finalCta = {
   title: "Ready to build your first AI voice agent?",
   description: "Create an agent, test the conversation and prepare it for real customer calls.",
-  primaryCta: { label: "Start Free", href: routes.getStarted },
+  primaryCta: { label: "Start Free", href: routes.startFree },
   secondaryCta: { label: "Read the Docs", href: routes.docs },
 };

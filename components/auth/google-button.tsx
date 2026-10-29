@@ -6,7 +6,7 @@ export function GoogleButton() {
         type="button"
         disabled
         aria-describedby="google-soon"
-        className="flex h-11 w-full cursor-not-allowed items-center justify-center gap-3 rounded-full border border-line bg-white text-[0.9375rem] font-medium text-ink opacity-70"
+        className="flex h-11 w-full cursor-not-allowed items-center justify-center gap-3 rounded-full border border-line-strong bg-surface text-[0.9375rem] font-medium text-ink opacity-70"
       >
         <svg viewBox="0 0 24 24" className="size-[18px]" aria-hidden="true">
           <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z" />

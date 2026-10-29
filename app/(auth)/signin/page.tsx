@@ -18,7 +18,7 @@ export default function SignInPage() {
       footer={
         <>
           New to Reyvoca?{" "}
-          <Link href={routes.getStarted} className="font-medium text-brand hover:text-brand-hover">
+          <Link href={routes.getStarted} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
             Create Account
           </Link>
         </>

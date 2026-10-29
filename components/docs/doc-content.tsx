@@ -9,7 +9,7 @@ function Block({ block }: { block: DocBlock }) {
       return <h2 className="pt-4 text-2xl font-semibold tracking-tight text-ink">{block.text}</h2>;
     case "list":
       return (
-        <ul className="list-disc space-y-2 pl-5 marker:text-brand">
+        <ul className="list-disc space-y-2 pl-5 marker:text-accent">
           {block.items.map((item) => (
             <li key={item}>{item}</li>
           ))}
@@ -17,8 +17,8 @@ function Block({ block }: { block: DocBlock }) {
       );
     case "callout":
       return (
-        <aside className="flex gap-3 rounded-xl border border-brand-soft bg-brand-softer p-4 text-[0.9375rem] text-ink">
-          <Info className="mt-0.5 size-4 shrink-0 text-brand" aria-hidden="true" />
+        <aside className="flex gap-3 rounded-xl border border-line bg-surface-muted p-4 text-[0.9375rem] text-ink">
+          <Info className="mt-0.5 size-4 shrink-0 text-accent-strong" aria-hidden="true" />
           <p>{block.text}</p>
         </aside>
       );
@@ -27,7 +27,7 @@ function Block({ block }: { block: DocBlock }) {
         <pre
           tabIndex={0}
           aria-label={`${block.language} example`}
-          className="overflow-x-auto rounded-xl bg-panel p-5 font-mono text-sm leading-relaxed text-slate-200"
+          className="overflow-x-auto rounded-xl bg-night p-5 font-mono text-sm leading-relaxed text-night-text"
         >
           <code>{block.code}</code>
         </pre>

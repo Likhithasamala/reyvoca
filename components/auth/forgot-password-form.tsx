@@ -31,7 +31,7 @@ export function ForgotPasswordForm() {
       <FormField label="Email" name="email" type="email" autoComplete="email" placeholder="you@company.com" error={error} />
       {result &&
         (result.ok ? (
-          <p role="status" className="rounded-xl border border-green-200 bg-success-soft p-4 text-sm text-success">
+          <p role="status" className="rounded-xl border border-success-line bg-success-soft p-4 text-sm text-success">
             If an account exists for that email, a reset link is on its way.
           </p>
         ) : (

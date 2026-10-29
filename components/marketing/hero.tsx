@@ -18,7 +18,7 @@ export function Hero() {
           <Eyebrow>{hero.eyebrow}</Eyebrow>
 
           <h1 id="hero-heading" className="mt-6 text-display font-semibold text-ink text-balance">
-            {heading.before} <span className="text-brand">{heading.highlight}</span>
+            {heading.before} <span className="text-accent">{heading.highlight}</span>
             {heading.after && <> {heading.after}</>}
           </h1>
 
@@ -37,7 +37,7 @@ export function Hero() {
           <ul className="mt-9 flex flex-wrap gap-x-6 gap-y-3">
             {hero.valuePoints.map((point) => (
               <li key={point} className="flex items-center gap-2 text-[0.9375rem] text-ink-muted">
-                <span className="flex size-5 items-center justify-center rounded-full bg-brand-soft text-brand">
+                <span className="flex size-5 items-center justify-center rounded-full border border-line-strong bg-surface text-ink">
                   <Check className="size-3" strokeWidth={3} aria-hidden="true" />
                 </span>
                 {point}

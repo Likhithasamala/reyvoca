@@ -8,16 +8,16 @@ export function FinalCta() {
   return (
     <section aria-labelledby="final-cta-heading" className="py-24 lg:py-28">
       <Container>
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-brand px-6 py-16 text-center sm:px-12 lg:py-24">
+        <div className="relative isolate overflow-hidden rounded-[2rem] bg-night px-6 py-16 text-center sm:px-12 lg:py-24">
           <div
             aria-hidden="true"
-            className="absolute inset-0 -z-10 bg-[radial-gradient(60%_80%_at_50%_0%,rgb(255_255_255/0.22),transparent_70%),radial-gradient(40%_60%_at_100%_100%,rgb(11_18_32/0.35),transparent_70%)]"
+            className="night-glow absolute inset-0 -z-10"
           />
-          <Waveform bars={7} active={false} className="h-8 text-white/60" />
+          <Waveform bars={7} active={false} className="h-8 text-accent-glow" />
           <h2 id="final-cta-heading" className="mx-auto mt-6 max-w-2xl text-h2 font-semibold text-white text-balance">
             {finalCta.title}
           </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lead text-blue-100 text-pretty">{finalCta.description}</p>
+          <p className="mx-auto mt-5 max-w-xl text-lead text-night-text text-pretty">{finalCta.description}</p>
           <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
             <ButtonLink href={finalCta.primaryCta.href} variant="inverse" size="lg">
               {finalCta.primaryCta.label}

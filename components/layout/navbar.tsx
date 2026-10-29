@@ -31,7 +31,7 @@ export function Navbar() {
           <ButtonLink href={routes.signIn} variant="ghost" size="md">
             Sign In
           </ButtonLink>
-          <ButtonLink href={routes.getStarted} size="md">
+          <ButtonLink href={routes.startFree} size="md">
             Start Free
           </ButtonLink>
         </div>

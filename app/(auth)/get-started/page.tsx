@@ -18,7 +18,7 @@ export default function GetStartedPage() {
       footer={
         <>
           Already have an account?{" "}
-          <Link href={routes.signIn} className="font-medium text-brand hover:text-brand-hover">
+          <Link href={routes.signIn} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
             Sign In
           </Link>
         </>

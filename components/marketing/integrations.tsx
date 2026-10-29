@@ -14,14 +14,14 @@ export function Integrations() {
         />
         <ul className="mt-16 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:mt-20 lg:grid-cols-4 lg:gap-5">
           {integrations.groups.map((group) => (
-            <li key={group.category} className="reveal rounded-2xl border border-line bg-white p-6">
+            <li key={group.category} className="reveal rounded-2xl border border-line bg-surface p-6">
               <h3 className="text-lg font-semibold tracking-tight text-ink">{group.category}</h3>
               <p className="mt-1 text-sm text-ink-subtle">{group.description}</p>
               <ul className="mt-5 flex flex-wrap gap-2" aria-label={`${group.category} providers`}>
                 {group.items.map((item) => (
                   <li
                     key={item}
-                    className="rounded-lg border border-line bg-surface-muted px-3 py-1.5 text-sm font-medium text-ink"
+                    className="rounded-lg border border-line bg-canvas px-3 py-1.5 text-sm font-medium text-ink"
                   >
                     {item}
                   </li>

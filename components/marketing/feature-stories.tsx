@@ -17,7 +17,7 @@ export function FeatureStories() {
               aria-labelledby={`story-${story.visual}`}
             >
               <div className={cn(flipped && "lg:order-2")}>
-                <p className="text-xs font-semibold tracking-[0.08em] text-brand uppercase">{story.eyebrow}</p>
+                <p className="text-xs font-semibold tracking-[0.08em] text-accent-strong uppercase">{story.eyebrow}</p>
                 <h2 id={`story-${story.visual}`} className="mt-3 text-h3 font-semibold text-ink text-balance">
                   {story.title}
                 </h2>
@@ -25,7 +25,7 @@ export function FeatureStories() {
                 <ul className="mt-7 space-y-3">
                   {story.points.map((point) => (
                     <li key={point} className="flex items-start gap-3 text-[0.9375rem] text-ink">
-                      <Check className="mt-0.5 size-[18px] shrink-0 text-brand" strokeWidth={2.25} aria-hidden="true" />
+                      <Check className="mt-0.5 size-[18px] shrink-0 text-ink" strokeWidth={2.25} aria-hidden="true" />
                       {point}
                     </li>
                   ))}
@@ -35,7 +35,7 @@ export function FeatureStories() {
               <div className={cn("reveal relative isolate", flipped && "lg:order-1")}>
                 <div
                   aria-hidden="true"
-                  className="absolute -inset-4 -z-10 rounded-[32px] bg-linear-to-br from-brand-softer via-white to-surface-muted sm:-inset-8"
+                  className="absolute -inset-4 -z-10 rounded-[32px] bg-surface-muted sm:-inset-8"
                 />
                 <div aria-hidden="true">
                   <StoryVisual visual={story.visual} />

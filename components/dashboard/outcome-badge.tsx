@@ -2,9 +2,9 @@ import type { CallOutcome } from "@/types";
 import { cn } from "@/lib/cn";
 
 const styles: Record<CallOutcome, string> = {
-  Appointment: "bg-brand-softer text-brand border-brand-soft",
-  Qualified: "bg-success-soft text-success border-green-200",
-  Callback: "bg-warning-soft text-warning border-amber-200",
+  Appointment: "bg-accent-wash text-accent-strong border-accent-soft",
+  Qualified: "bg-success-soft text-success border-success-line",
+  Callback: "bg-warning-soft text-warning border-warning-line",
   "Not interested": "bg-surface-muted text-ink-muted border-line",
   Voicemail: "bg-surface-muted text-ink-muted border-line",
 };

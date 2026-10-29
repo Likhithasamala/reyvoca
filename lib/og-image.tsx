@@ -1,4 +1,5 @@
 import { ImageResponse } from "next/og";
+import { brandColors } from "@/config/brand";
 import { siteConfig } from "@/config/site";
 
 export const ogSize = { width: 1200, height: 630 };
@@ -17,8 +18,8 @@ export function renderOgImage() {
           flexDirection: "column",
           justifyContent: "space-between",
           padding: 80,
-          background: "linear-gradient(135deg, #ffffff 0%, #eff6ff 60%, #dbeafe 100%)",
-          color: "#0f172a",
+          background: brandColors.canvas,
+          color: brandColors.ink,
           fontFamily: "sans-serif",
         }}
       >
@@ -28,7 +29,7 @@ export function renderOgImage() {
               width: 72,
               height: 72,
               borderRadius: 20,
-              background: "#2563eb",
+              background: brandColors.ink,
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -36,7 +37,7 @@ export function renderOgImage() {
             }}
           >
             {bars.map((height, index) => (
-              <div key={index} style={{ width: 7, height: height * 0.6, borderRadius: 4, background: "#ffffff" }} />
+              <div key={index} style={{ width: 7, height: height * 0.6, borderRadius: 4, background: index === 2 ? brandColors.emberGlow : brandColors.surface }} />
             ))}
           </div>
           <div style={{ fontSize: 44, fontWeight: 700, letterSpacing: -1 }}>{siteConfig.name}</div>
@@ -45,7 +46,7 @@ export function renderOgImage() {
           <div style={{ fontSize: 72, fontWeight: 700, letterSpacing: -2.5, lineHeight: 1.05, maxWidth: 940 }}>
             AI voice agents that talk, understand and take action
           </div>
-          <div style={{ fontSize: 30, color: "#475569" }}>AI voice agents for real business conversations.</div>
+          <div style={{ fontSize: 30, color: brandColors.inkMuted }}>AI voice agents for real business conversations.</div>
         </div>
       </div>
     ),

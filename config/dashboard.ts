@@ -1,48 +1,12 @@
 /**
- * Dashboard navigation and DEMO data.
- * Everything in `demo*` is illustrative sample data for Phase 1 UI only —
- * it is not fetched from, or written to, any service.
+ * DEMO data for the marketing site's workspace preview.
+ *
+ * The dashboard's own navigation lives in `config/dashboard-nav.ts` and its
+ * example data in `config/dashboard-demo.ts`. Everything here exists only to
+ * render the product mockup inside the public homepage.
  */
-import {
-  BarChart3,
-  BookOpen,
-  Bot,
-  CalendarCheck,
-  CreditCard,
-  LayoutDashboard,
-  Megaphone,
-  PhoneCall,
-  Phone,
-  Plug,
-  Settings,
-  Target,
-  Users,
-} from "lucide-react";
-import type { LucideIcon } from "lucide-react";
+import { Bot, CalendarCheck, PhoneCall, Target } from "lucide-react";
 import type { DemoCall, DemoStat } from "@/types";
-
-export type DashboardNavItem = {
-  label: string;
-  slug: string;
-  icon: LucideIcon;
-  description: string;
-};
-
-export const dashboardNav: DashboardNavItem[] = [
-  { label: "Overview", slug: "", icon: LayoutDashboard, description: "Your workspace at a glance." },
-  { label: "Agents", slug: "agents", icon: Bot, description: "Create and configure voice agents." },
-  { label: "Phone Numbers", slug: "phone-numbers", icon: Phone, description: "Connect and route phone numbers." },
-  { label: "Campaigns", slug: "campaigns", icon: Megaphone, description: "Schedule outbound calling campaigns." },
-  { label: "Leads", slug: "leads", icon: Users, description: "Upload and manage lead lists." },
-  { label: "Calls", slug: "calls", icon: PhoneCall, description: "Review calls, transcripts and recordings." },
-  { label: "Analytics", slug: "analytics", icon: BarChart3, description: "Measure outcomes and agent performance." },
-  { label: "Knowledge", slug: "knowledge", icon: BookOpen, description: "Manage the knowledge your agents use." },
-  { label: "Integrations", slug: "integrations", icon: Plug, description: "Connect providers and business tools." },
-  { label: "Billing", slug: "billing", icon: CreditCard, description: "Plans, usage and invoices." },
-  { label: "Settings", slug: "settings", icon: Settings, description: "Workspace, team and security settings." },
-];
-
-export const dashboardHref = (slug: string) => (slug ? `/dashboard/${slug}` : "/dashboard");
 
 export const demoWorkspace = { name: "Acme Demo", user: { name: "Demo User", initials: "DU" } };
 

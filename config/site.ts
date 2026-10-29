@@ -21,6 +21,12 @@ export const siteConfig = {
 export const routes = {
   home: "/",
   signIn: "/signin",
+  /**
+   * Where every public "Start Free" CTA points. During this development phase
+   * it opens the dashboard directly — no signup step before the product.
+   * Point it back at `getStarted` to re-enable account creation first.
+   */
+  startFree: "/dashboard",
   getStarted: "/get-started",
   forgotPassword: "/forgot-password",
   docs: "/docs",

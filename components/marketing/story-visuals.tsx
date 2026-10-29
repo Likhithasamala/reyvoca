@@ -23,7 +23,7 @@ import type { FeatureStoryVisual } from "@/types";
 
 function Panel({ title, meta, children }: { title: string; meta?: ReactNode; children: ReactNode }) {
   return (
-    <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-lift">
+    <div className="overflow-hidden rounded-2xl border border-line bg-surface shadow-lift">
       <div className="flex items-center justify-between gap-3 border-b border-line px-5 py-3.5">
         <p className="text-sm font-semibold text-ink">{title}</p>
         {meta}
@@ -38,8 +38,8 @@ function Tag({ children, tone = "neutral" }: { children: ReactNode; tone?: "neut
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-xs font-medium",
-        tone === "brand" && "border-brand-soft bg-brand-softer text-brand",
-        tone === "success" && "border-green-200 bg-success-soft text-success",
+        tone === "brand" && "border-accent-soft bg-accent-wash text-accent-strong",
+        tone === "success" && "border-success-line bg-success-soft text-success",
         tone === "neutral" && "border-line bg-surface-muted text-ink-muted",
       )}
     >
@@ -108,8 +108,8 @@ function Knowledge() {
           </li>
         ))}
       </ul>
-      <div className="mt-4 rounded-xl bg-brand-softer p-4">
-        <p className="flex items-center gap-1.5 text-xs font-semibold text-brand">
+      <div className="mt-4 rounded-xl border border-line bg-surface-muted p-4">
+        <p className="flex items-center gap-1.5 text-xs font-semibold text-accent-strong">
           <Sparkles className="size-3.5" aria-hidden="true" /> Grounded answer
         </p>
         <p className="mt-1.5 text-sm leading-relaxed text-ink">
@@ -126,18 +126,18 @@ function Calling() {
     <Panel title="Calling" meta={<Tag tone="success">2 active</Tag>}>
       <div className="space-y-3">
         <div className="flex items-center gap-3 rounded-xl border border-line p-4">
-          <span className="flex size-9 items-center justify-center rounded-lg bg-brand-softer text-brand">
+          <span className="flex size-9 items-center justify-center rounded-lg border border-line bg-surface-muted text-ink">
             <ArrowDownLeft className="size-4" aria-hidden="true" />
           </span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium text-ink">Inbound · Support line</p>
             <p className="truncate text-xs text-ink-subtle">+1 (555) 010-2040 → Support Agent</p>
           </div>
-          <Waveform bars={4} className="h-3.5 text-brand" />
+          <Waveform bars={4} className="h-3.5 text-accent" />
         </div>
         <div className="rounded-xl border border-line p-4">
           <div className="flex items-center gap-3">
-            <span className="flex size-9 items-center justify-center rounded-lg bg-navy text-white">
+            <span className="flex size-9 items-center justify-center rounded-lg bg-brand text-white">
               <ArrowUpRight className="size-4" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1">
@@ -147,7 +147,7 @@ function Calling() {
             <span className="text-sm font-semibold text-ink tabular-nums">62%</span>
           </div>
           <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-line">
-            <div className="h-full w-[62%] rounded-full bg-brand" />
+            <div className="h-full w-[62%] rounded-full bg-ink" />
           </div>
           <p className="mt-2 text-xs text-ink-subtle">310 of 500 leads called</p>
         </div>
@@ -170,7 +170,7 @@ function Actions() {
         <span aria-hidden="true" className="absolute top-2 bottom-2 left-[15px] w-px bg-line" />
         {actions.map(({ name, detail, icon: Icon }) => (
           <li key={name} className="relative flex items-start gap-3">
-            <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-brand-soft bg-white text-brand">
+            <span className="relative flex size-8 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface text-ink">
               <Icon className="size-4" aria-hidden="true" />
             </span>
             <div className="min-w-0 flex-1 pt-0.5">
@@ -199,7 +199,7 @@ function Insights() {
       </p>
       <div className="mt-4 space-y-2 border-t border-line pt-4 text-[0.8125rem]">
         <p>
-          <span className="font-semibold text-brand">Agent: </span>
+          <span className="font-semibold text-accent-strong">Agent: </span>
           <span className="text-ink-muted">What are you mainly looking to automate?</span>
         </p>
         <p>
@@ -223,7 +223,7 @@ function Analytics() {
           { label: "Avg. duration", value: "2:46" },
           { label: "Conversion", value: "21%" },
         ].map((metric) => (
-          <div key={metric.label} className="rounded-xl border border-line bg-white p-3.5 shadow-card">
+          <div key={metric.label} className="rounded-xl border border-line bg-surface p-3.5 shadow-card">
             <p className="text-[0.6875rem] font-medium text-ink-subtle sm:text-xs">{metric.label}</p>
             <p className="mt-1 text-lg font-semibold text-ink tabular-nums sm:text-xl">{metric.value}</p>
           </div>

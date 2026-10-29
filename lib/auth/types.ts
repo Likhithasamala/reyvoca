@@ -15,7 +15,13 @@ export type PasswordResetInput = {
   email: string;
 };
 
-export type AuthErrorCode = "not_configured" | "invalid_credentials" | "network_error" | "unknown";
+export type AuthErrorCode =
+  | "not_configured"
+  | "invalid_credentials"
+  | "email_taken"
+  | "validation_error"
+  | "network_error"
+  | "unknown";
 
 export type AuthResult =
   | { ok: true; redirectTo?: string }
@@ -30,4 +36,5 @@ export interface AuthService {
   signIn(input: SignInInput): Promise<AuthResult>;
   signUp(input: SignUpInput): Promise<AuthResult>;
   requestPasswordReset(input: PasswordResetInput): Promise<AuthResult>;
+  signOut(): Promise<AuthResult>;
 }

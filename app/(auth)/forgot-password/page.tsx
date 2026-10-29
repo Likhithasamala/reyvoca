@@ -17,7 +17,7 @@ export default function ForgotPasswordPage() {
       title="Reset your password"
       description="Enter your account email and we'll send you a reset link."
       footer={
-        <Link href={routes.signIn} className="font-medium text-brand hover:text-brand-hover">
+        <Link href={routes.signIn} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
           Back to Sign In
         </Link>
       }

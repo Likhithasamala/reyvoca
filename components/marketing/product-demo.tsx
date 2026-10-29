@@ -50,15 +50,15 @@ export function ProductDemo() {
       {/* Back plate for depth */}
       <div
         aria-hidden="true"
-        className="absolute inset-x-6 -bottom-3 top-6 rounded-[28px] border border-brand-soft bg-brand-softer/70"
+        className="absolute inset-x-6 -bottom-3 top-6 rounded-[28px] border border-line bg-surface-muted"
       />
 
-      <div className="relative overflow-hidden rounded-3xl border border-line bg-white shadow-float">
+      <div className="relative overflow-hidden rounded-3xl border border-line bg-surface shadow-float">
         {/* Call header */}
         <div className="flex items-center justify-between gap-4 border-b border-line px-5 py-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-3">
-            <span className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-white">
-              {speaking && <span aria-hidden="true" className="absolute inset-0 animate-ping-soft rounded-full bg-brand" />}
+            <span className="relative flex size-11 shrink-0 items-center justify-center rounded-full bg-brand text-accent-glow">
+              {speaking && <span aria-hidden="true" className="absolute inset-0 animate-ping-soft rounded-full bg-accent" />}
               <Waveform active={speaking} bars={4} className="relative h-4" />
             </span>
             <div className="min-w-0">
@@ -69,12 +69,15 @@ export function ProductDemo() {
             </div>
           </div>
           <div className="shrink-0 text-right">
-            <p className="inline-flex items-center gap-1.5 rounded-full bg-brand-softer px-2.5 py-1 text-[0.6875rem] font-semibold tracking-[0.08em] text-brand uppercase">
+            <p className={cn(
+                "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[0.6875rem] font-semibold tracking-[0.08em] uppercase",
+                speaking ? "border-accent-soft bg-accent-wash text-accent-strong" : "border-line bg-surface-muted text-ink-muted",
+              )}>
               <span
                 aria-hidden="true"
-                className={cn("size-1.5 rounded-full", finished ? "bg-ink-subtle" : "animate-pulse bg-brand")}
+                className={cn("size-1.5 rounded-full", speaking ? "animate-pulse bg-accent" : "bg-ink-subtle")}
               />
-              {finished ? "Call ended" : "Live AI call"}
+              {finished ? "Call ended" : connected ? "Live AI call" : "Calling"}
             </p>
             <p className="mt-1 font-mono text-sm text-ink-muted tabular-nums">
               {connected ? formatDuration(elapsed - CONNECTED_AT) : "Dialing…"}
@@ -93,7 +96,7 @@ export function ProductDemo() {
             </div>
             <div className="mt-2 h-1 overflow-hidden rounded-full bg-line">
               <div
-                className="h-full rounded-full bg-brand transition-[width] duration-500"
+                className="h-full rounded-full bg-ink transition-[width] duration-500"
                 style={{ width: `${((activeStep + 1) / demoSteps.length) * 100}%` }}
               />
             </div>
@@ -110,7 +113,7 @@ export function ProductDemo() {
                       aria-hidden="true"
                       className={cn(
                         "absolute top-6 bottom-1 left-[9px] w-px",
-                        index < activeStep ? "bg-brand" : "bg-line-strong",
+                        index < activeStep ? "bg-ink" : "bg-line-strong",
                       )}
                     />
                   )}
@@ -118,13 +121,13 @@ export function ProductDemo() {
                     aria-hidden="true"
                     className={cn(
                       "relative z-10 flex size-[19px] shrink-0 items-center justify-center rounded-full border transition-colors duration-300",
-                      done && "border-brand bg-brand text-white",
-                      current && "border-brand bg-white",
-                      !done && !current && "border-line-strong bg-white",
+                      done && "border-ink bg-ink text-white",
+                      current && "border-accent bg-surface",
+                      !done && !current && "border-line-strong bg-surface",
                     )}
                   >
                     {done && <Check className="size-3" strokeWidth={3} />}
-                    {current && <span className="size-2 animate-pulse rounded-full bg-brand" />}
+                    {current && <span className="size-2 animate-pulse rounded-full bg-accent" />}
                   </span>
                   <span
                     className={cn(
@@ -152,14 +155,14 @@ export function ProductDemo() {
                     aria-hidden={!shown}
                     className={cn(
                       "max-w-[85%] rounded-2xl px-3.5 py-2.5 text-[0.8125rem] leading-snug transition-[opacity,transform] duration-500",
-                      isAgent ? "rounded-tl-md bg-surface-muted text-ink" : "rounded-tr-md bg-brand text-white",
+                      isAgent ? "rounded-tl-md border border-line bg-surface-muted text-ink" : "rounded-tr-md bg-ink text-white",
                       shown ? "translate-y-0 opacity-100" : "translate-y-1 opacity-0",
                     )}
                   >
                     <span
                       className={cn(
                         "mb-0.5 block text-[0.6875rem] font-semibold tracking-wide uppercase",
-                        isAgent ? "text-brand" : "text-white/75",
+                        isAgent ? "text-accent-strong" : "text-night-muted",
                       )}
                     >
                       {isAgent ? "AI agent" : "Customer"}
@@ -171,13 +174,13 @@ export function ProductDemo() {
                       aria-hidden="true"
                       className={cn(
                         "absolute top-0 inline-flex gap-1 rounded-full px-3 py-2.5",
-                        isAgent ? "left-0 bg-surface-muted" : "right-0 bg-brand-soft",
+                        isAgent ? "left-0 bg-surface-muted" : "right-0 bg-line",
                       )}
                     >
                       {[0, 1, 2].map((dot) => (
                         <span
                           key={dot}
-                          className={cn("size-1.5 animate-dot rounded-full", isAgent ? "bg-ink-subtle" : "bg-brand")}
+                          className={cn("size-1.5 animate-dot rounded-full", isAgent ? "bg-accent" : "bg-ink-subtle")}
                           style={{ animationDelay: `${dot * 0.15}s` }}
                         />
                       ))}
@@ -190,7 +193,7 @@ export function ProductDemo() {
         </div>
 
         {/* Captured outcomes */}
-        <div className="flex flex-wrap items-center gap-2 border-t border-line bg-white px-5 py-4 sm:px-6">
+        <div className="flex flex-wrap items-center gap-2 border-t border-line bg-surface px-5 py-4 sm:px-6">
           {demoOutcomes.map((outcome) => {
             const captured = elapsed >= outcome.at;
             return (
@@ -199,11 +202,11 @@ export function ProductDemo() {
                 className={cn(
                   "inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-xs font-medium transition-colors duration-500",
                   captured
-                    ? "border-brand-soft bg-brand-softer text-brand"
+                    ? "border-line-strong bg-surface text-ink"
                     : "border-dashed border-line-strong text-ink-subtle",
                 )}
               >
-                <CircleCheck className={cn("size-3.5", !captured && "opacity-40")} aria-hidden="true" />
+                <CircleCheck className={cn("size-3.5", captured ? "text-accent-strong" : "opacity-40")} aria-hidden="true" />
                 {outcome.label}
                 <span className="sr-only">{captured ? " — captured" : " — pending"}</span>
               </span>
@@ -213,7 +216,7 @@ export function ProductDemo() {
             <button
               type="button"
               onClick={() => setTicks(0)}
-              className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium text-ink-subtle transition-colors hover:text-brand"
+              className="ml-auto inline-flex items-center gap-1.5 rounded-full px-2 py-1 text-xs font-medium text-ink-subtle transition-colors hover:text-ink"
             >
               <RotateCcw className="size-3.5" aria-hidden="true" />
               Replay

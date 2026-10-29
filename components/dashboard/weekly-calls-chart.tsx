@@ -6,11 +6,12 @@ type WeeklyCallsChartProps = {
   title?: string;
 };
 
-/** Single-series bar chart: one brand hue, thin rounded bars on a shared baseline. */
+/** Single-series bar chart: neutral bars, the latest day highlighted in the ember accent. */
 export function WeeklyCallsChart({ data, className, title = "Calls this week" }: WeeklyCallsChartProps) {
-  const max = Math.max(...data.map((d) => d.calls));
+  // Guard against a zero max (a week with no calls), which would divide by zero.
+  const max = Math.max(1, ...data.map((d) => d.calls));
   return (
-    <figure className={cn("rounded-xl border border-line bg-white p-5", className)}>
+    <figure className={cn("rounded-xl border border-line bg-surface p-5", className)}>
       <figcaption className="flex items-baseline justify-between gap-3">
         <span className="text-sm font-semibold text-ink">{title}</span>
         <span className="text-xs text-ink-subtle">Last 7 days</span>
@@ -30,7 +31,7 @@ export function WeeklyCallsChart({ data, className, title = "Calls this week" }:
               <div
                 className={cn(
                   "w-full max-w-7 rounded-t-[4px] transition-colors",
-                  latest ? "bg-brand" : "bg-brand-bright/45 group-hover:bg-brand-bright/70",
+                  latest ? "bg-accent" : "bg-line-strong group-hover:bg-ink-subtle/60",
                 )}
                 style={{ height: `${(d.calls / max) * 84}%` }}
               />

@@ -20,8 +20,8 @@ export function NavbarShell({ children }: { children: ReactNode }) {
       className={cn(
         "sticky top-0 z-50 border-b transition-[background-color,border-color,box-shadow] duration-300",
         scrolled
-          ? "border-line bg-white/80 shadow-[0_1px_12px_-6px_rgb(15_23_42/0.12)] backdrop-blur-xl backdrop-saturate-150"
-          : "border-transparent bg-white",
+          ? "border-line bg-canvas/80 backdrop-blur-xl backdrop-saturate-150"
+          : "border-transparent bg-canvas",
       )}
     >
       {children}

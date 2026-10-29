@@ -12,7 +12,7 @@ type RecentCallsTableProps = {
 export function RecentCallsTable({ calls, compact = false, caption = "Recent calls" }: RecentCallsTableProps) {
   const cell = compact ? "px-3 py-2.5" : "px-4 py-3.5 sm:px-5";
   return (
-    <div className="overflow-hidden rounded-xl border border-line bg-white">
+    <div className="overflow-hidden rounded-xl border border-line bg-surface">
       <table className={cn("w-full text-left", compact ? "text-xs" : "text-sm")}>
         <caption className={cn("border-b border-line text-left font-semibold text-ink", cell)}>{caption}</caption>
         <thead className="bg-surface-muted text-ink-subtle">

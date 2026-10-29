@@ -92,18 +92,18 @@ export function GetStartedForm() {
             />
             <span>
               I agree to the{" "}
-              <Link href={routes.terms} className="font-medium text-brand hover:text-brand-hover">
+              <Link href={routes.terms} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link href={routes.privacy} className="font-medium text-brand hover:text-brand-hover">
+              <Link href={routes.privacy} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
                 Privacy Policy
               </Link>
               .
             </span>
           </label>
           {errors.terms && (
-            <p id="terms-error" className="mt-1.5 text-xs font-medium text-red-600">
+            <p id="terms-error" className="mt-1.5 text-xs font-medium text-danger">
               {errors.terms}
             </p>
           )}

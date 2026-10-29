@@ -60,7 +60,7 @@ export function SignInForm() {
           autoComplete="current-password"
           error={errors.password}
           labelAction={
-            <Link href={routes.forgotPassword} className="text-sm font-medium text-brand hover:text-brand-hover">
+            <Link href={routes.forgotPassword} className="text-sm font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
               Forgot password?
             </Link>
           }

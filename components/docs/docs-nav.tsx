@@ -20,7 +20,7 @@ function NavList() {
               aria-current={active ? "page" : undefined}
               className={cn(
                 "block rounded-lg px-3 py-2 text-[0.9375rem] transition-colors",
-                active ? "bg-brand-softer font-medium text-brand" : "text-ink-muted hover:bg-surface-muted hover:text-ink",
+                active ? "bg-surface-muted font-medium text-ink shadow-[inset_2px_0_0_var(--color-accent)]" : "text-ink-muted hover:bg-surface-muted hover:text-ink",
               )}
             >
               {docNavLabel(page)}
@@ -46,7 +46,7 @@ export function DocsMobileNav() {
   const pathname = usePathname();
   const current = docPages.find((page) => docHref(page.slug) === pathname);
   return (
-    <details key={pathname} className="group rounded-xl border border-line bg-white lg:hidden">
+    <details key={pathname} className="group rounded-xl border border-line bg-surface lg:hidden">
       <summary className="flex cursor-pointer list-none items-center justify-between px-4 py-3 text-sm font-medium text-ink [&::-webkit-details-marker]:hidden">
         <span>
           <span className="text-ink-subtle">Docs / </span>

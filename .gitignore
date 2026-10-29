@@ -45,3 +45,6 @@ secrets/
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local backend datastore (JSON file, development only)
+/.data

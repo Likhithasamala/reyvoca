@@ -12,7 +12,7 @@ type FormFieldProps = Omit<ComponentProps<"input">, "id"> & {
 };
 
 const inputClass =
-  "block h-11 w-full rounded-lg border bg-white px-3.5 text-[0.9375rem] text-ink placeholder:text-ink-subtle transition-colors focus:outline-none focus:ring-4";
+  "block h-11 w-full rounded-lg border bg-surface px-3.5 text-[0.9375rem] text-ink placeholder:text-ink-subtle transition-colors focus:outline-none focus:ring-4";
 
 export function FormField({ label, error, hint, labelAction, type = "text", className, ...props }: FormFieldProps) {
   const id = useId();
@@ -38,8 +38,8 @@ export function FormField({ label, error, hint, labelAction, type = "text", clas
             inputClass,
             isPassword && "pr-11",
             error
-              ? "border-red-400 focus:border-red-500 focus:ring-red-100"
-              : "border-line hover:border-line-strong focus:border-brand focus:ring-brand-soft",
+              ? "border-danger focus:border-danger focus:ring-danger-soft"
+              : "border-line-strong hover:border-ink-subtle focus:border-ink focus:ring-surface-muted",
           )}
           {...props}
         />
@@ -61,7 +61,7 @@ export function FormField({ label, error, hint, labelAction, type = "text", clas
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="mt-1.5 text-xs font-medium text-red-600">
+        <p id={`${id}-error`} className="mt-1.5 text-xs font-medium text-danger">
           {error}
         </p>
       )}
