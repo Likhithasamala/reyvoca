@@ -1,45 +1,37 @@
 import { howItWorks } from "@/config/marketing";
 import { Container } from "@/components/ui/container";
-import { IconTile } from "@/components/ui/icon-tile";
-import { SectionHeading } from "@/components/ui/section-heading";
 
+/**
+ * The five-step spine, set as a numbered rail.
+ *
+ * The numbers are information here, not decoration — this is a sequence, and
+ * the reader needs the order. Ember marks only the numerals, which keeps the
+ * accent in its ~5% budget while still carrying the eye down the list.
+ */
 export function HowItWorks() {
   return (
-    <section id="how-it-works" aria-labelledby="how-it-works-heading" className="py-24 lg:py-32">
+    <section
+      id={howItWorks.id}
+      aria-labelledby="how-it-works-heading"
+      className="bg-canvas py-28 lg:py-36"
+    >
       <Container>
-        <SectionHeading
-          id="how-it-works-heading"
-          eyebrow={howItWorks.eyebrow}
-          title={howItWorks.title}
-          description={howItWorks.description}
-        />
+        <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">
+          {howItWorks.eyebrow}
+        </p>
+        <h2 id="how-it-works-heading" className="mt-5 max-w-[20ch] text-h2 font-semibold text-ink text-balance">
+          {howItWorks.heading}
+        </h2>
+        <p className="mt-4 max-w-[46ch] text-lead text-ink-muted">{howItWorks.subheading}</p>
 
-        <ol className="relative mt-16 grid grid-cols-1 gap-6 md:grid-cols-2 lg:mt-20 lg:grid-cols-4 lg:gap-0">
-          {/* Horizontal connector (desktop) */}
-          <span
-            aria-hidden="true"
-            className="absolute top-7 right-[12.5%] left-[12.5%] hidden h-px bg-line-strong lg:block"
-          />
-          {howItWorks.steps.map((step, index) => (
-            <li key={step.title} className="reveal relative flex gap-5 md:flex-col md:gap-0 lg:px-4 lg:text-center">
-              {/* Vertical connector (mobile) */}
-              {index < howItWorks.steps.length - 1 && (
-                <span aria-hidden="true" className="absolute top-14 bottom-[-1.5rem] left-[27px] w-px bg-line-strong md:hidden" />
-              )}
-              <div className="relative flex shrink-0 flex-col items-center lg:mx-auto">
-                <span className="relative flex size-14 items-center justify-center rounded-2xl border border-line bg-surface shadow-card">
-                  <IconTile icon={step.icon} className="size-10 border-0 bg-transparent" />
-                </span>
-              </div>
-              <div className="pb-2 md:mt-6">
-                <p className="font-mono text-xs font-semibold tracking-widest text-accent-strong">
-                  {String(index + 1).padStart(2, "0")}
-                </p>
-                <h3 className="mt-2 text-xl font-semibold tracking-tight text-ink">{step.title}</h3>
-                <p className="mt-2 text-[0.9375rem] leading-relaxed text-ink-muted lg:mx-auto lg:max-w-[240px]">
-                  {step.description}
-                </p>
-              </div>
+        <ol className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+          {howItWorks.steps.map((step) => (
+            <li key={step.number} className="flex min-w-0 flex-col gap-3 bg-surface p-6 lg:p-7">
+              <span className="font-mono text-sm font-semibold tracking-[0.1em] text-accent-strong tabular-nums">
+                {step.number}
+              </span>
+              <h3 className="text-[0.9375rem] font-semibold text-ink text-balance">{step.title}</h3>
+              <p className="text-sm leading-relaxed text-ink-muted">{step.detail}</p>
             </li>
           ))}
         </ol>

@@ -21,11 +21,6 @@ export function AuthShell({ title, description, children, footer }: AuthShellPro
   return (
     <div className="grid min-h-dvh grid-cols-1 lg:grid-cols-[1fr_1.1fr]">
       <aside className="relative isolate hidden overflow-hidden bg-night p-12 text-white lg:flex lg:flex-col xl:p-16">
-        <div
-          aria-hidden="true"
-          className="night-glow absolute inset-0 -z-10"
-        />
-        <div aria-hidden="true" className="grid-lines absolute inset-0 -z-10 opacity-60 invert" />
         <Logo inverse />
 
         <div className="my-auto max-w-md py-16">

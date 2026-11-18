@@ -46,7 +46,7 @@ export function GetStartedForm() {
     const response = await authService.signUp(input);
     setSubmitting(false);
     if (response.ok) {
-      router.push(response.redirectTo ?? routes.dashboard);
+      router.push(response.redirectTo ?? routes.requests);
       return;
     }
     setResult(response);

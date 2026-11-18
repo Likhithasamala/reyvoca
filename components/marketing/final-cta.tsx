@@ -1,36 +1,30 @@
-import { ArrowRight } from "lucide-react";
+import Link from "next/link";
 import { finalCta } from "@/config/marketing";
-import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
-import { Waveform } from "@/components/ui/waveform";
 
+/**
+ * The designed close: the invitation set large, the action ending the
+ * sentence as a real button sized in em so it scales with the type.
+ */
 export function FinalCta() {
   return (
-    <section aria-labelledby="final-cta-heading" className="py-24 lg:py-28">
+    <section aria-labelledby="cta-heading" className="bg-surface pt-28 pb-10 lg:pt-36">
       <Container>
-        <div className="relative isolate overflow-hidden rounded-[2rem] bg-night px-6 py-16 text-center sm:px-12 lg:py-24">
-          <div
-            aria-hidden="true"
-            className="night-glow absolute inset-0 -z-10"
-          />
-          <Waveform bars={7} active={false} className="h-8 text-accent-glow" />
-          <h2 id="final-cta-heading" className="mx-auto mt-6 max-w-2xl text-h2 font-semibold text-white text-balance">
-            {finalCta.title}
-          </h2>
-          <p className="mx-auto mt-5 max-w-xl text-lead text-night-text text-pretty">{finalCta.description}</p>
-          <div className="mt-10 flex flex-col justify-center gap-3 sm:flex-row">
-            <ButtonLink href={finalCta.primaryCta.href} variant="inverse" size="lg">
-              {finalCta.primaryCta.label}
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" aria-hidden="true" />
-            </ButtonLink>
-            <ButtonLink
-              href={finalCta.secondaryCta.href}
-              variant="inverse-outline"
-              size="lg"
-            >
-              {finalCta.secondaryCta.label}
-            </ButtonLink>
-          </div>
+        <h2
+          id="cta-heading"
+          className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.05] font-semibold tracking-tight text-ink"
+        >
+          <span className="block">{finalCta.line1}</span>
+          <span className="block">{finalCta.line2}</span>
+        </h2>
+        <div className="mt-10 flex flex-wrap items-center gap-6">
+          <Link
+            href={finalCta.cta.href}
+            className="inline-block rounded-full bg-brand px-10 py-4 text-xl leading-none font-semibold text-white transition-colors hover:bg-brand-hover"
+          >
+            {finalCta.cta.label}
+          </Link>
+          <p className="max-w-[40ch] text-base text-ink-muted">{finalCta.note}</p>
         </div>
       </Container>
     </section>

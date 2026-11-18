@@ -1,11 +1,17 @@
 import type { MetadataRoute } from "next";
 import { docHref, docPages } from "@/config/docs";
+import { industries } from "@/config/industries";
 import { infoPages } from "@/config/info-pages";
 import { routes, siteUrl } from "@/config/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const paths: { path: string; priority: number }[] = [
     { path: routes.home, priority: 1 },
+    // The industry and language pages are the site's search surface: each one
+    // answers a query a buyer actually types, so they rank above the docs.
+    { path: routes.industries, priority: 0.9 },
+    { path: routes.languages, priority: 0.9 },
+    ...industries.map((industry) => ({ path: `/industries/${industry.slug}`, priority: 0.8 })),
     { path: routes.getStarted, priority: 0.8 },
     { path: routes.signIn, priority: 0.5 },
     ...docPages.map((page) => ({ path: docHref(page.slug), priority: page.slug ? 0.6 : 0.7 })),

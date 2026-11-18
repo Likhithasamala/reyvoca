@@ -59,12 +59,12 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
         id={PANEL_ID}
         ref={panelRef}
         hidden={!open}
-        className="absolute inset-x-0 top-full h-[calc(100dvh-72px)] overflow-y-auto border-t border-line bg-canvas"
+        className="absolute inset-x-0 top-full h-[calc(100dvh-56px)] overflow-y-auto border-t border-line bg-canvas"
       >
         <nav aria-label="Mobile" className="px-5 pt-4 pb-8 sm:px-8">
           <ul className="divide-y divide-line">
             {links.map((link) => (
-              <li key={link.href}>
+              <li key={link.label}>
                 <Link
                   href={link.href}
                   onClick={close}
@@ -79,8 +79,8 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
             <ButtonLink href={routes.signIn} variant="secondary" size="lg" onClick={close}>
               Sign In
             </ButtonLink>
-            <ButtonLink href={routes.startFree} size="lg" onClick={close}>
-              Start Free
+            <ButtonLink href={routes.bookDemo} size="lg" onClick={close}>
+              Book a demo
             </ButtonLink>
           </div>
         </nav>

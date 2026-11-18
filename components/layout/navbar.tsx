@@ -9,16 +9,16 @@ import { NavbarShell } from "./navbar-shell";
 export function Navbar() {
   return (
     <NavbarShell>
-      <Container className="flex h-[72px] items-center justify-between gap-6 lg:h-[76px]">
+      <Container className="flex h-14 items-center justify-between gap-6 lg:h-[60px]">
         <Logo />
 
         <nav aria-label="Main" className="hidden lg:block">
           <ul className="flex items-center gap-1">
             {mainNav.map((link) => (
-              <li key={link.href}>
+              <li key={link.label}>
                 <Link
                   href={link.href}
-                  className="rounded-full px-3.5 py-2 text-[0.9375rem] font-medium text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
+                  className="rounded-full px-3.5 py-1.5 text-[0.9375rem] font-medium text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink"
                 >
                   {link.label}
                 </Link>
@@ -28,11 +28,11 @@ export function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-2 lg:flex">
-          <ButtonLink href={routes.signIn} variant="ghost" size="md">
+          <ButtonLink href={routes.signIn} variant="ghost" size="sm">
             Sign In
           </ButtonLink>
-          <ButtonLink href={routes.startFree} size="md">
-            Start Free
+          <ButtonLink href={routes.bookDemo} size="sm">
+            Book a demo
           </ButtonLink>
         </div>
 

@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Kept out of the build on purpose; see parked/README.md.
+    "parked/**",
   ]),
 ]);
 

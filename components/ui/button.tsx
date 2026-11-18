@@ -9,8 +9,7 @@ const base =
   "group inline-flex items-center justify-center gap-2 rounded-full font-medium whitespace-nowrap transition-[background-color,border-color,color,box-shadow,transform] duration-200 disabled:pointer-events-none disabled:opacity-60";
 
 const variants: Record<Variant, string> = {
-  primary:
-    "bg-brand text-white shadow-cta hover:bg-brand-hover hover:-translate-y-px hover:shadow-cta-hover",
+  primary: "bg-brand text-white hover:bg-brand-hover hover:-translate-y-px",
   secondary: "border border-line-strong bg-surface text-ink hover:border-ink/40 hover:bg-surface-muted hover:-translate-y-px",
   ghost: "text-ink-muted hover:text-ink hover:bg-surface-muted",
   inverse: "bg-surface text-ink hover:bg-surface-muted hover:-translate-y-px",

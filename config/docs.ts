@@ -63,12 +63,12 @@ export const docPages: DocPage[] = [
     blocks: [
       {
         type: "p",
-        text: "An agent combines instructions, a voice, a language and a set of allowed actions. Agents are being designed so each one can choose its own language model, speech-to-text and text-to-speech providers.",
+        text: "An agent combines instructions, a voice, a language and a set of allowed actions. The speech, transcription and language models behind it are Reyvoca's managed engine — there is nothing to connect, and it is kept current for you.",
       },
       { type: "h2", text: "Planned configuration" },
       {
         type: "list",
-        items: ["Name, role and objective", "System instructions and guardrails", "Voice and language", "Provider selection", "Allowed tools and actions"],
+        items: ["Name, role and objective", "System instructions and guardrails", "Voice and language", "Allowed tools and actions"],
       },
     ],
   },

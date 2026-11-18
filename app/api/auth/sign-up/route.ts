@@ -48,5 +48,5 @@ export async function POST(request: Request) {
   }
 
   await createSession(created.id);
-  return jsonOk({ user: toSessionUser(created), redirectTo: routes.dashboard }, 201);
+  return jsonOk({ user: toSessionUser(created), redirectTo: routes.requests }, 201);
 }

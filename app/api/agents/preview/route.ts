@@ -1,18 +1,19 @@
+import { resolveEngine } from "@/lib/server/engine";
 import { asString, jsonError, jsonOk, readJson } from "@/lib/server/http";
 import { providerKey, runAgentReply, type ChatMessage } from "@/lib/server/providers";
 import { currentWorkspaceId } from "@/lib/server/workspace";
 
 /**
  * POST /api/agents/preview — one assistant turn for the Test chat / Web call.
- * The provider is called with the workspace's stored LLM key; the key itself
- * never reaches the browser.
+ *
+ * Which model answers is decided here, from the platform's connected stack and
+ * the agent's template: the browser sends the conversation, never a provider.
  */
 export async function POST(request: Request) {
   const body = await readJson(request);
   if (!body) return jsonError("bad_request", "Expected a JSON body.", 400);
 
-  const provider = asString(body.provider).trim().toLowerCase();
-  const model = asString(body.model).trim();
+  const template = asString(body.template).trim();
   const system = asString(body.system);
   const rawMessages = Array.isArray(body.messages) ? body.messages : [];
   const messages: ChatMessage[] = rawMessages
@@ -26,21 +27,27 @@ export async function POST(request: Request) {
     .filter((m) => m.content.trim())
     .slice(-30);
 
-  if (!provider) return jsonError("validation_error", "Pick a language model provider first.", 400);
   if (!messages.length) return jsonError("validation_error", "Send at least one message.", 400);
 
   const workspaceId = await currentWorkspaceId();
-  const key = await providerKey(workspaceId, "llm", provider);
+  const engine = await resolveEngine(workspaceId, template);
+  if (!engine.llmProvider) {
+    return jsonError("validation_error", "The Reyvoca engine is not available yet.", 400);
+  }
+
+  const key = await providerKey(workspaceId, "llm", engine.llmProvider);
   if (!key) {
-    return jsonError(
-      "validation_error",
-      "No API key saved for this provider. Add one under Providers → Language Model.",
-      400,
-    );
+    return jsonError("validation_error", "The Reyvoca engine is not available yet.", 400);
   }
 
   try {
-    const reply = await runAgentReply({ provider, model, apiKey: key.apiKey, system, messages });
+    const reply = await runAgentReply({
+      provider: engine.llmProvider,
+      model: engine.llmModel,
+      apiKey: key.apiKey,
+      system,
+      messages,
+    });
     return jsonOk({ reply });
   } catch (error) {
     return jsonError("server_error", (error as Error).message || "The model could not reply.", 502);

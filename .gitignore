@@ -48,3 +48,14 @@ next-env.d.ts
 
 # local backend datastore (JSON file, development only)
 /.data
+
+# local design-review scratch (taste-skill screenshot runs)
+/.taste-skill/
+
+# loose working files at repo root: screenshots, screen recordings, project zips
+/*.png
+/*.jpg
+/*.jpeg
+/*.mp4
+/*.mov
+/*.zip

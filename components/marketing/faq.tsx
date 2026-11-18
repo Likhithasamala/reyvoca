@@ -1,37 +1,34 @@
-import { Plus } from "lucide-react";
 import { faq } from "@/config/marketing";
 import { Container } from "@/components/ui/container";
-import { SectionHeading } from "@/components/ui/section-heading";
 
 /**
- * Accordion built on native <details>/<summary>: keyboard and screen-reader
- * accessible with zero client JavaScript. The shared `name` makes it
- * exclusive (opening one closes the others) in supporting browsers.
+ * Filled-tile accordion: a sticky heading on the left, one tile open at a
+ * time (shared <details> name). The open tile fills with ink — the brand's
+ * primary — since ember is never used as a large fill.
  */
 export function Faq() {
   return (
-    <section id="faq" aria-labelledby="faq-heading" className="bg-surface-muted py-24 lg:py-32">
-      <Container className="grid grid-cols-1 gap-12 lg:grid-cols-[0.8fr_1.2fr] lg:gap-20">
-        <SectionHeading
-          id="faq-heading"
-          eyebrow={faq.eyebrow}
-          title={faq.title}
-          align="left"
-          description="Reyvoca is in active development. Answers describe the platform we're building."
-        />
-        <div className="divide-y divide-line rounded-2xl border border-line bg-surface">
+    <section id={faq.id} aria-labelledby="faq-heading" className="bg-canvas py-28 lg:py-36">
+      <Container className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-8">
+        <div className="lg:col-span-4">
+          <h2 id="faq-heading" className="text-[clamp(2.25rem,4vw,3.5rem)] font-semibold text-ink lg:sticky lg:top-24">
+            {faq.heading}
+          </h2>
+        </div>
+
+        <div className="space-y-2 lg:col-span-8">
           {faq.items.map((item) => (
-            <details key={item.question} name="faq" className="faq-item group">
-              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 text-left text-base font-semibold text-ink transition-colors hover:text-ink-muted sm:text-[1.0625rem] [&::-webkit-details-marker]:hidden">
-                {item.question}
-                <span
-                  aria-hidden="true"
-                  className="flex size-7 shrink-0 items-center justify-center rounded-full border border-line text-ink-muted transition-[transform,background-color,color,border-color] duration-200 group-open:rotate-45 group-open:border-ink group-open:bg-ink group-open:text-white"
-                >
-                  <Plus className="size-4" />
+            <details key={item.question} name="faq" className="faq-item group rounded-xl bg-surface-muted open:bg-brand">
+              <summary className="flex min-h-[72px] cursor-pointer list-none items-center justify-between gap-6 px-6 py-5 [&::-webkit-details-marker]:hidden">
+                <span className="text-[17px] font-medium text-ink transition-colors group-open:text-white sm:text-[20px]">
+                  {item.question}
+                </span>
+                <span aria-hidden="true" className="relative size-4 shrink-0">
+                  <span className="absolute top-1/2 left-0 h-[3px] w-4 -translate-y-1/2 rounded-full bg-ink transition-colors group-open:bg-accent-glow" />
+                  <span className="absolute top-1/2 left-1/2 h-4 w-[3px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink transition-[transform,background-color] duration-300 group-open:rotate-90 group-open:bg-accent-glow" />
                 </span>
               </summary>
-              <p className="px-6 pb-6 text-[0.9375rem] leading-relaxed text-ink-muted">{item.answer}</p>
+              <p className="max-w-[52ch] px-6 pb-6 text-[17px] leading-relaxed text-ink group-open:text-night-text">{item.answer}</p>
             </details>
           ))}
         </div>

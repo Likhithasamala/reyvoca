@@ -56,12 +56,12 @@ export function FormField({ label, error, hint, labelAction, type = "text", clas
         )}
       </div>
       {hint && !error && (
-        <p id={`${id}-hint`} className="mt-1.5 text-xs text-ink-subtle">
+        <p id={`${id}-hint`} className="mt-1.5 text-sm text-ink-subtle">
           {hint}
         </p>
       )}
       {error && (
-        <p id={`${id}-error`} className="mt-1.5 text-xs font-medium text-danger">
+        <p id={`${id}-error`} className="mt-1.5 text-sm font-medium text-danger">
           {error}
         </p>
       )}

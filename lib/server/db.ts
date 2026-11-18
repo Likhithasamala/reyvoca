@@ -10,6 +10,7 @@ import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
 import type { Agent } from "@/lib/agents/types";
 import type { Campaign, InstantSetup, Lead, WebhookEvent } from "@/types/calling";
+import { PLATFORM_WORKSPACE_ID } from "./scope";
 
 export type StoredUser = {
   id: string;
@@ -18,6 +19,13 @@ export type StoredUser = {
   email: string;
   workspace: string;
   passwordHash: string;
+  /**
+   * "admin" accounts reach the operator panel at `/admin`, where the provider
+   * stack is configured. Absent means an ordinary customer account; see
+   * `lib/server/admin.ts` for the full rule (an `REYVOCA_ADMIN_EMAILS` entry
+   * also grants it, without touching stored rows).
+   */
+  role?: "admin" | "user";
   createdAt: string;
 };
 
@@ -38,6 +46,90 @@ export type StoredCall = {
   durationSeconds: number;
   outcome: string;
   startedAt: string;
+  /** Reyvoca agent the call ran as, when known. */
+  agentId?: string;
+  /** How the call was placed; "web" is a browser call on Sarvam. */
+  channel?: "web";
+  /** Sarvam interaction id (`<YYYYMMDD>/<id>`), used to fetch the transcript. */
+  interactionId?: string;
+  /** Metering for a billed call; absent on calls that were never billed. */
+  billing?: CallBilling;
+};
+
+/**
+ * How one call is metered. Money is in paise (₹1 = 100 paise = 1 credit).
+ *
+ * Each started minute is charged as it begins, the way Sarvam rounds a call
+ * up to whole minutes. When Sarvam's own record arrives the call is settled to
+ * its duration, so what the customer pays always tracks what Sarvam bills.
+ */
+export type CallBilling = {
+  /** Prices in force when the call started — later price changes never re-price it. */
+  sarvamPerMinutePaise: number;
+  marginPerMinutePaise: number;
+  /** When audio connected (server clock); minutes are counted from here. */
+  connectedAt?: string;
+  /** Last time the browser reported the call still running. */
+  lastMeterAt?: string;
+  endedAt?: string;
+  /** Minutes charged to the wallet so far. */
+  minutesCharged: number;
+  /** Total charged to the customer, in paise (minutes × customer price). */
+  chargedPaise: number;
+  /** "live" while metering, "ended" until settled with Sarvam, then "settled". */
+  status: "live" | "ended" | "settled";
+  /** Sarvam's billable minutes once settled. */
+  sarvamMinutes?: number;
+};
+
+/**
+ * Prepaid credits for one workspace. 1 credit = ₹1; held in paise.
+ * May go slightly negative when a call settles longer than it was metered;
+ * new calls are then refused until the wallet is topped up.
+ */
+export type StoredWallet = {
+  workspaceId: string;
+  balancePaise: number;
+  updatedAt: string;
+};
+
+/** Every change to a wallet. The balance is always the sum of these. */
+export type StoredLedgerEntry = {
+  id: string;
+  workspaceId: string;
+  type: "topup" | "call_charge" | "call_settlement" | "adjustment";
+  /** Signed: positive adds credits, negative spends them. */
+  amountPaise: number;
+  balanceAfterPaise: number;
+  callId?: string;
+  note: string;
+  /** Operator email for manual entries. */
+  createdBy?: string;
+  createdAt: string;
+};
+
+/**
+ * A customer asking for credits. Payment happens offline; an operator adds the
+ * credits (which marks the request fulfilled) or dismisses it.
+ */
+export type StoredTopupRequest = {
+  id: string;
+  workspaceId: string;
+  amountPaise: number;
+  status: "pending" | "fulfilled" | "dismissed";
+  createdAt: string;
+  resolvedAt?: string;
+  resolvedBy?: string;
+};
+
+/** Platform-wide prices, set by an operator. */
+export type StoredPricing = {
+  /** What Sarvam charges Reyvoca per agent minute (pay-as-you-go: ₹3.50). */
+  sarvamPerMinutePaise: number;
+  /** Reyvoca's margin per minute on top. */
+  marginPerMinutePaise: number;
+  updatedAt: string;
+  updatedBy?: string;
 };
 
 /**
@@ -84,9 +176,28 @@ export type StoredProviderConfig = {
   createdAt: string;
 };
 
+/**
+ * A "Book a demo" enquiry from the public site.
+ *
+ * Reyvoca is sold with a conversation, not self-serve: these are the people to
+ * ring back, so the row carries everything needed to make that call and a
+ * status to track whether it has happened.
+ */
+export type StoredDemoRequest = {
+  id: string;
+  name: string;
+  company: string;
+  phone: string;
+  email: string;
+  message?: string;
+  status: "new" | "contacted" | "booked" | "closed";
+  createdAt: string;
+};
+
 export type Database = {
   users: StoredUser[];
   sessions: StoredSession[];
+  demoRequests: StoredDemoRequest[];
   calls: StoredCall[];
   agents: StoredAgent[];
   leads: StoredLead[];
@@ -95,6 +206,11 @@ export type Database = {
   idempotencyKeys: StoredIdempotencyKey[];
   instantSetups: StoredInstantSetup[];
   providerConfigs: StoredProviderConfig[];
+  wallets: StoredWallet[];
+  ledger: StoredLedgerEntry[];
+  topupRequests: StoredTopupRequest[];
+  /** Null until an operator saves prices; the defaults in lib/server/billing apply. */
+  pricing: StoredPricing | null;
 };
 
 const DATA_DIR = path.join(process.cwd(), ".data");
@@ -103,6 +219,7 @@ const DATA_FILE = path.join(DATA_DIR, "reyvoca.json");
 const emptyDatabase = (): Database => ({
   users: [],
   sessions: [],
+  demoRequests: [],
   calls: [],
   agents: [],
   leads: [],
@@ -110,6 +227,10 @@ const emptyDatabase = (): Database => ({
   webhookEvents: [],
   idempotencyKeys: [],
   instantSetups: [],
+  wallets: [],
+  ledger: [],
+  topupRequests: [],
+  pricing: null,
   providerConfigs: [],
 });
 
@@ -118,7 +239,19 @@ async function load(): Promise<Database> {
     const parsed = JSON.parse(await readFile(DATA_FILE, "utf8")) as Partial<Database>;
     // Each collection is defaulted, so a file written by an earlier version
     // loads cleanly instead of crashing on a missing key.
-    return { ...emptyDatabase(), ...parsed };
+    const db = { ...emptyDatabase(), ...parsed };
+
+    // Provider keys used to be saved per workspace, when every customer
+    // connected their own. They are Reyvoca's now, configured once in the
+    // operator panel, so keys written by an earlier version are adopted by the
+    // platform workspace — otherwise they would be invisible to the only
+    // screen that can still manage them. Idempotent, and persisted by the
+    // next write.
+    db.providerConfigs = db.providerConfigs.map((row) =>
+      row.workspaceId === PLATFORM_WORKSPACE_ID ? row : { ...row, workspaceId: PLATFORM_WORKSPACE_ID },
+    );
+
+    return db;
   } catch {
     // Missing or unreadable file: start from an empty database.
     return emptyDatabase();

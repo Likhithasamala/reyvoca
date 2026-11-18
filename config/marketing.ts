@@ -2,389 +2,256 @@
  * All homepage copy lives here so messaging can change without touching
  * components. Copy describes Reyvoca as a platform in development — it
  * must not claim capabilities, customers or certifications that don't exist.
+ *
+ * The page is an argument, one claim per section:
+ *   hero      — an AI agent can run a real business call end to end (the demo proves it)
+ *   anatomy   — the call becomes data: transcript → intent → outcome → action
+ *   inbound   — put an agent on the line and every call gets answered
+ *   build     — you assemble this yourself: instructions, voice, knowledge, calling
+ *   pricing   — start free; real pricing stated honestly as unannounced
+ *   faq       — real questions, honest answers
+ *   cta       — one closing invitation
  */
-import {
-  AudioLines,
-  BarChart3,
-  BellRing,
-  BookOpen,
-  Bot,
-  Briefcase,
-  Building2,
-  CalendarCheck,
-  FileText,
-  Hand,
-  Headphones,
-  Languages,
-  Layers,
-  ListChecks,
-  Mic,
-  PhoneCall,
-  RefreshCw,
-  Rocket,
-  Stethoscope,
-  Target,
-  Workflow,
-} from "lucide-react";
-import type {
-  FaqItem,
-  Feature,
-  FeatureStory,
-  HeroContent,
-  IntegrationGroup,
-  PricingTier,
-  Step,
-  UseCase,
-} from "@/types";
 import { routes } from "./site";
 
-/** Alternative headline concepts — swap into `hero.heading` as needed. */
-export const taglines = [
-  "AI Voice Agents That Actually Get Work Done",
-  "AI Conversations That Move Business Forward",
-  "Build Voice Agents That Speak, Listen and Take Action",
-  "Turn Every Call Into an Intelligent Conversation",
-  "AI Voice Agents Built for Real Conversations",
-];
-
-export const hero: HeroContent = {
-  eyebrow: "AI voice agents built for action",
-  heading: {
-    before: "AI voice agents that",
-    highlight: "talk, understand",
-    after: "and take action",
-  },
+export const hero = {
+  line1: "The phone rings.",
+  line2: "Reyvoca answers.",
   subtitle:
-    "Build voice agents that speak naturally with customers, answer questions, qualify leads, book appointments and follow up — with every conversation captured and summarised.",
-  primaryCta: { label: "Start Free", href: routes.startFree },
-  secondaryCta: { label: "See How It Works", href: "/#how-it-works" },
-  valuePoints: ["Natural conversations", "Multilingual ready", "Transcripts for every call"],
+    "Build AI voice agents that hold real business conversations — qualify the lead, book the visit, screen the candidate — and file every outcome in your workspace.",
+  primaryCta: { label: "Start Free", href: routes.bookDemo },
+  secondaryCta: { label: "Read the docs", href: routes.docs },
+  note: "Free while in development. Test every agent in the browser before it calls anyone.",
 };
 
-export const socialProof = {
-  statement: "Built for teams handling conversations at scale",
-  industries: [
-    { label: "Sales", icon: Target },
-    { label: "Recruiting", icon: Briefcase },
-    { label: "Healthcare", icon: Stethoscope },
-    { label: "Real Estate", icon: Building2 },
-    { label: "Insurance", icon: FileText },
-    { label: "Customer Support", icon: Headphones },
+export const anatomy = {
+  id: "how-it-works",
+  heading: "What a call becomes",
+  steps: [
+    {
+      statement: "First, the agent speaks.",
+      support:
+        "Low-latency dialogue in the voice you chose, grounded in your knowledge. Callers can interrupt — it stops, listens and adapts.",
+      stage: "transcript" as const,
+    },
+    {
+      statement: "Then Reyvoca reads the intent.",
+      support:
+        "Budget, timeline, the preferred slot: pulled out of the words as structured fields while the call is still running, not buried in notes.",
+      stage: "intent" as const,
+    },
+    {
+      statement: "The outcome lands in your workspace.",
+      support:
+        "A transcript, a summary, an outcome and the next action, filed under the lead that called and ready for a person to pick up.",
+      stage: "workspace" as const,
+    },
   ],
 };
 
-export const howItWorks = {
-  eyebrow: "How it works",
-  title: "From idea to live voice agent in minutes.",
-  description:
-    "A guided path from a blank agent to real customer conversations — no stitching together telephony, speech and language models by hand.",
-  steps: [
-    {
-      title: "Create your agent",
-      description: "Define its role, instructions, voice and the business objective it should achieve.",
-      icon: Bot,
-    },
-    {
-      title: "Give it knowledge",
-      description: "Add FAQs, product information, documents and the business context it needs.",
-      icon: BookOpen,
-    },
-    {
-      title: "Connect your calling",
-      description: "Attach a phone number and configure inbound lines or outbound campaigns.",
-      icon: PhoneCall,
-    },
-    {
-      title: "Go live",
-      description: "Let the agent speak with customers while outcomes are captured automatically.",
-      icon: Rocket,
-    },
-  ] satisfies Step[],
+export const inboundLine = {
+  id: "inbound",
+  heading: "Always on the line",
+  sentence:
+    "Attach an agent to your inbound number and every call gets answered: nights, weekends, the hour everyone phones at once.",
 };
 
-export const whyReyvoca = {
-  eyebrow: "Why Reyvoca",
-  title: "Everything your voice agent needs. Without stitching together ten tools.",
-  description:
-    "Reyvoca is being designed as one platform for the full call lifecycle — conversation, knowledge, actions and insight.",
-  features: [
+export const build = {
+  id: "build",
+  heading: "Assemble it yourself",
+  cells: [
     {
-      title: "Natural conversations",
-      description:
-        "Designed for low-latency, human-sounding dialogue that keeps pace with the caller instead of reading from a script.",
-      icon: AudioLines,
-      wide: true,
-      visual: "voice",
+      title: "Write the instructions",
+      body: "Tell the agent its role, its goal and its boundaries in plain language. Templates cover intake, outreach, support and screening.",
+      fragment: "instructions" as const,
     },
     {
-      title: "Flexible providers",
-      description:
-        "Not locked to one vendor. Choose the language model, speech-to-text, text-to-speech and telephony provider that fit each agent.",
-      icon: Layers,
-      wide: true,
-      visual: "providers",
+      title: "Pick a voice",
+      body: "Voices from ElevenLabs, Sarvam, Azure and more. Language and style are chosen per agent, so the clinic doesn't sound like the sales desk.",
+      fragment: "voice" as const,
     },
     {
-      title: "Barge-in",
-      description: "Callers can interrupt naturally while the agent is speaking — it stops, listens and adapts.",
-      icon: Hand,
+      title: "Ground it in your knowledge",
+      body: "Upload FAQs, documents and product details so answers come from your business, not from guesswork.",
+      fragment: "knowledge" as const,
     },
     {
-      title: "Multilingual",
-      description: "Architecture prepared for agents that converse in multiple languages and accents.",
-      icon: Languages,
+      title: "Load a campaign",
+      body: "Upload a CSV of leads. Reyvoca maps the columns, schedules the calls inside your calling window and retries politely.",
+      fragment: "campaign" as const,
     },
     {
-      title: "Knowledge base",
-      description: "Ground every answer in your own documents, FAQs and product information.",
-      icon: BookOpen,
+      title: "Route your inbound line",
+      body: "Attach a number, write the greeting, and set the rules for when a person should take the call instead.",
+      fragment: "line" as const,
     },
     {
-      title: "Actions & tools",
-      description: "Agents built to work with CRMs, calendars, webhooks and your own APIs.",
-      icon: Workflow,
+      title: "Read the results",
+      body: "Outcomes, connect rate and duration per agent: enough to see what to fix, without a reporting project.",
+      fragment: "results" as const,
     },
-    {
-      title: "Call transcripts",
-      description: "A complete, searchable record of what was said on every call.",
-      icon: FileText,
-    },
-    {
-      title: "Call recordings",
-      description: "Store recordings where legally and operationally appropriate, with consent controls.",
-      icon: Mic,
-    },
-    {
-      title: "Structured outcomes",
-      description: "Interested, callback, appointment, qualified — captured as data, not buried in notes.",
-      icon: ListChecks,
-    },
-    {
-      title: "Analytics",
-      description: "Track calls, connect rate, duration, conversions and agent performance.",
-      icon: BarChart3,
-    },
-  ] satisfies Feature[],
-};
-
-export const useCases = {
-  eyebrow: "Use cases",
-  title: "One voice platform. Multiple workflows.",
-  description: "The same agent foundation adapts to the conversations your team has every day.",
-  items: [
-    {
-      title: "Lead qualification",
-      description: "Call new or uploaded leads, ask the right questions and surface qualified prospects.",
-      icon: Target,
-    },
-    {
-      title: "Appointment booking",
-      description: "Schedule consultations, demos and visits directly into the right calendar.",
-      icon: CalendarCheck,
-    },
-    {
-      title: "Customer support",
-      description: "Resolve common questions instantly and hand off to people when it matters.",
-      icon: Headphones,
-    },
-    {
-      title: "Renewal reminders",
-      description: "Follow up on subscriptions, policies, service contracts and upcoming payments.",
-      icon: RefreshCw,
-    },
-    {
-      title: "Recruitment",
-      description: "Pre-screen applicants with consistent questions and schedule interviews.",
-      icon: Briefcase,
-    },
-    {
-      title: "Real estate",
-      description: "Qualify property enquiries, answer listing questions and book site visits.",
-      icon: Building2,
-    },
-    {
-      title: "Healthcare admin",
-      description: "Support appointment scheduling and routine administrative calling workflows.",
-      icon: Stethoscope,
-    },
-    {
-      title: "Reminders & follow-ups",
-      description: "Run courteous, compliant reminder calls with outcomes logged automatically.",
-      icon: BellRing,
-    },
-  ] satisfies UseCase[],
-};
-
-export const productExperience = {
-  eyebrow: "The platform",
-  title: "Every agent, call and outcome in one workspace.",
-  description:
-    "A preview of the Reyvoca workspace we're building — agents, campaigns, calls and analytics side by side.",
-};
-
-export const featureStories: FeatureStory[] = [
-  {
-    eyebrow: "Agents",
-    title: "Create agents for any workflow",
-    description:
-      "Describe the role, tone and goal in plain language. Each agent gets its own instructions, voice and language — tuned for the job it does.",
-    points: ["Role and goal-based instructions", "Voice and language per agent", "Reusable templates for common workflows"],
-    visual: "agent-builder",
-  },
-  {
-    eyebrow: "Knowledge",
-    title: "Connect your business knowledge",
-    description:
-      "Upload documents, FAQs and product details so agents answer from your information — not from guesswork.",
-    points: ["Documents, FAQs and web pages", "Answers grounded in your sources", "Update knowledge without redeploying"],
-    visual: "knowledge",
-  },
-  {
-    eyebrow: "Calling",
-    title: "Make inbound and outbound calls",
-    description:
-      "Put an agent on an inbound line, or run outbound campaigns against a lead list with schedules and retry rules.",
-    points: ["Inbound lines and outbound campaigns", "Calling windows and retry rules", "Bring your own telephony provider"],
-    visual: "calling",
-  },
-  {
-    eyebrow: "Actions",
-    title: "Let agents take real actions",
-    description:
-      "Mid-conversation, agents can check availability, book meetings and update records through tools you approve.",
-    points: ["Calendar, CRM and webhook tools", "You control which actions are allowed", "Every action logged with the call"],
-    visual: "actions",
-  },
-  {
-    eyebrow: "Insights",
-    title: "Understand every conversation",
-    description:
-      "Transcripts, summaries and structured outcomes turn each call into something your team can act on.",
-    points: ["Full transcripts and summaries", "Structured outcomes and next steps", "Callbacks tracked automatically"],
-    visual: "insights",
-  },
-  {
-    eyebrow: "Analytics",
-    title: "Optimise using analytics",
-    description:
-      "See which agents, scripts and calling windows perform best — then iterate with confidence.",
-    points: ["Connect rate and call duration", "Outcome and conversion trends", "Per-agent performance"],
-    visual: "analytics",
-  },
-];
-
-export const integrations = {
-  eyebrow: "Integrations",
-  title: "Built to work with your stack",
-  description:
-    "Reyvoca is being built provider-agnostic. These are the integrations on our roadmap — not all are available yet.",
-  groups: [
-    { category: "Telephony", description: "Phone numbers and call routing", items: ["Twilio", "Telnyx"] },
-    { category: "Speech", description: "Speech-to-text and text-to-speech", items: ["Sarvam", "Deepgram", "ElevenLabs"] },
-    { category: "Language models", description: "Reasoning and conversation", items: ["OpenAI", "Anthropic", "Google", "Sarvam"] },
-    {
-      category: "Business tools",
-      description: "Where outcomes and actions land",
-      items: ["Salesforce", "HubSpot", "Calendly", "Google Calendar", "Webhooks"],
-    },
-  ] satisfies IntegrationGroup[],
+  ],
 };
 
 export const pricing = {
-  eyebrow: "Pricing",
-  title: "Simple plans as you scale.",
-  description: "Final pricing will be announced ahead of public launch. Start free and grow into production.",
+  id: "pricing",
+  note: "Final pricing will be announced ahead of public launch.",
   tiers: [
     {
       name: "Starter",
-      description: "For individuals experimenting with voice agents.",
-      priceLabel: "Coming soon",
-      features: ["Build and test agents", "Browser-based test calls", "Core transcripts and outcomes", "Community support"],
-      cta: { label: "Start Free", href: routes.startFree },
+      figure: "Free",
+      period: "while in development",
+      description:
+        "Build agents, test conversations in the browser, and keep core transcripts and outcomes. For trying the product honestly before it costs anything.",
+      cta: { label: "Start with Starter", href: routes.bookDemo },
     },
     {
       name: "Growth",
-      description: "For businesses running production voice workflows.",
-      priceLabel: "Coming soon",
-      features: [
-        "Everything in Starter",
-        "Phone numbers and campaigns",
-        "Knowledge base and actions",
-        "Analytics and team seats",
-      ],
-      cta: { label: "Start Free", href: routes.startFree },
-      highlighted: true,
+      figure: "Soon",
+      period: "pricing unannounced",
+      description:
+        "Phone numbers, outbound campaigns, knowledge bases, actions and team seats. The production tier; usage-based pricing lands ahead of public launch.",
+      cta: { label: "Start free, grow later", href: routes.bookDemo },
     },
     {
       name: "Enterprise",
-      description: "For high-volume or custom deployments.",
-      priceLabel: "Custom pricing",
-      features: ["Volume-based pricing", "Custom providers and integrations", "Deployment and security reviews", "Dedicated support"],
-      cta: { label: "Contact Sales", href: routes.contact },
+      figure: "Custom",
+      period: "by conversation",
+      description:
+        "High-volume or regulated deployments: custom providers, security review, dedicated support. Priced per deployment, not per seat.",
+      cta: { label: "Contact sales", href: routes.contact },
     },
-  ] satisfies PricingTier[],
+  ],
 };
 
 export const faq = {
-  eyebrow: "FAQ",
-  title: "Questions, answered.",
+  id: "faq",
+  heading: "Questions",
   items: [
     {
       question: "What is Reyvoca?",
       answer:
-        "Reyvoca is an AI voice agent platform currently in development. It is being designed to let businesses create agents that hold natural phone conversations, answer questions, capture outcomes and take actions in the tools they already use.",
+        "Reyvoca is an AI voice agent platform currently in development. It lets businesses create agents that hold natural phone conversations, answer questions, capture outcomes and take actions in the tools they already use.",
     },
     {
-      question: "What can Reyvoca voice agents do?",
+      question: "Does it handle inbound and outbound calls?",
       answer:
-        "Reyvoca agents are being designed to qualify leads, book appointments, answer support questions, run reminder and follow-up calls, and record structured outcomes for every conversation.",
+        "Yes — the platform is being built for both: agents answering inbound lines, and outbound campaigns that call a list of leads on a schedule with retry rules.",
     },
     {
-      question: "Can I use Reyvoca for inbound and outbound calls?",
+      question: "Can agents speak multiple languages?",
       answer:
-        "Yes — the platform is being built to support both: agents answering inbound lines, and outbound campaigns that call a list of leads on a schedule.",
+        "Multilingual conversations are part of the core architecture. Each voice covers its own set of languages, and the agent can switch between them mid-call.",
     },
     {
-      question: "Can Reyvoca work in multiple languages?",
+      question: "Which AI models does it run on?",
       answer:
-        "Multilingual conversations are part of the core architecture. Supported languages will depend on the speech and language providers selected for each agent.",
+        "Reyvoca runs a managed, multi-vendor engine and picks the best fit for each task, so you never configure or maintain an AI stack. Enterprise deployments can bring their own providers where policy requires it.",
     },
     {
-      question: "Can I connect Reyvoca to my CRM?",
+      question: "Do I get transcripts of every call?",
       answer:
-        "CRM integrations such as Salesforce and HubSpot are on our roadmap, alongside webhooks so outcomes can be sent to any system.",
+        "Transcripts are a core part of the product. Each call includes a full transcript, a summary and its structured outcome.",
     },
     {
-      question: "Can I use my own AI providers?",
+      question: "Can I test an agent before it calls real people?",
       answer:
-        "Reyvoca is being designed to be provider-flexible, so you can choose the language model, speech-to-text, text-to-speech and telephony provider for each agent.",
+        "Yes. Testing an agent in the browser before it ever reaches a customer is a key part of the workflow.",
     },
     {
-      question: "Does Reyvoca provide call transcripts?",
+      question: "What does it cost?",
       answer:
-        "Transcripts are a core part of the planned product. Each call is intended to include a full transcript, a summary and its structured outcome.",
+        "Pricing is per minute of agent talk time, quoted on the demo call once we know your volume and which languages you need. We'd rather give you a real number for your use case than a table you have to decode.",
     },
-    {
-      question: "Can I test an agent before making real calls?",
-      answer:
-        "Yes. Testing an agent in the browser before it ever reaches a customer is a key part of the planned workflow.",
-    },
-    {
-      question: "Will Reyvoca support API integrations?",
-      answer:
-        "Yes. A developer API and webhooks are planned so you can create agents, trigger calls and receive results programmatically.",
-    },
-    {
-      question: "How will pricing work?",
-      answer:
-        "Final pricing hasn't been announced. We expect a free tier for experimenting, a usage-based Growth plan and custom Enterprise pricing for high-volume deployments.",
-    },
-  ] satisfies FaqItem[],
+  ],
 };
 
 export const finalCta = {
-  title: "Ready to build your first AI voice agent?",
-  description: "Create an agent, test the conversation and prepare it for real customer calls.",
-  primaryCta: { label: "Start Free", href: routes.startFree },
-  secondaryCta: { label: "Read the Docs", href: routes.docs },
+  line1: "Your next enquiry",
+  line2: "could already be on a call.",
+  cta: { label: "Book a demo", href: routes.bookDemo },
+  note: "We build your agent with you on the call, in your language, on your own questions. No signup, no card.",
+};
+
+/**
+ * The five-step spine of the homepage.
+ *
+ * The site used to open on what the agent *is*. This says what the business
+ * gets, in the order it happens, and leaves the technology to the sections
+ * underneath it.
+ */
+export const howItWorks = {
+  id: "how-it-works",
+  eyebrow: "How it works",
+  heading: "An enquiry arrives. Somebody has to call it.",
+  subheading: "That somebody is the part we replace.",
+  steps: [
+    {
+      number: "01",
+      title: "The enquiry lands",
+      detail:
+        "A form, a portal, a missed call, a row in a sheet. Wherever your leads already arrive, that is where we connect.",
+    },
+    {
+      number: "02",
+      title: "The agent calls in seconds",
+      detail:
+        "Not in an hour, not when someone works down the list. While the person is still looking at your page.",
+    },
+    {
+      number: "03",
+      title: "It holds a real conversation",
+      detail:
+        "It answers from what you told it, asks your qualifying questions, and lets the caller interrupt — in the language they answered in.",
+    },
+    {
+      number: "04",
+      title: "The outcome is captured",
+      detail:
+        "A transcript, a summary and a structured result. Booked, not interested, call back Tuesday, needs a human.",
+    },
+    {
+      number: "05",
+      title: "You get the ones worth your time",
+      detail:
+        "Your team opens the day with qualified conversations instead of a list of numbers to dial.",
+    },
+  ],
+};
+
+/** The agent section — what sits between the process and the proof. */
+export const agentSection = {
+  id: "agent",
+  eyebrow: "The agent",
+  heading: "It sounds like a person because it behaves like one.",
+  points: [
+    {
+      title: "It waits for you to finish",
+      detail:
+        "A pause for thought is not the end of a sentence. The agent holds the turn open instead of talking over you.",
+    },
+    {
+      title: "You can interrupt it",
+      detail:
+        "Start speaking and it stops mid-word, then answers what you actually said rather than finishing its own point.",
+    },
+    {
+      title: "It changes language mid-call",
+      detail:
+        "Answer in Telugu and the rest of the call is in Telugu — the voice and the listening both move, not just the reply.",
+    },
+    {
+      title: "It admits what it does not know",
+      detail:
+        "Anything outside what you gave it gets an honest answer and a handover, never an invented price or a made-up name.",
+    },
+  ],
+};
+
+/** The industries strip on the homepage. */
+export const industriesSection = {
+  id: "industries",
+  eyebrow: "Industries",
+  heading: "One agent. Trained on your business.",
+  body: "The conversation changes completely between a clinic and a dealership. The platform does not — you write what the agent knows and how it should behave, and it holds that conversation.",
 };

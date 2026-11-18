@@ -35,7 +35,7 @@ export function SignInForm() {
     const response = await authService.signIn({ email: email.trim(), password });
     setSubmitting(false);
     if (response.ok) {
-      router.push(response.redirectTo ?? routes.dashboard);
+      router.push(response.redirectTo ?? routes.requests);
       return;
     }
     setResult(response);

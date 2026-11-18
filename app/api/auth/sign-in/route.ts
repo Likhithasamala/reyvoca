@@ -23,5 +23,5 @@ export async function POST(request: Request) {
   if (!(await verifyPassword(password, user.passwordHash))) return invalid;
 
   await createSession(user.id);
-  return jsonOk({ user: toSessionUser(user), redirectTo: routes.dashboard });
+  return jsonOk({ user: toSessionUser(user), redirectTo: routes.requests });
 }

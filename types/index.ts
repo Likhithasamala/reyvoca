@@ -174,6 +174,12 @@ export type WorkspaceIdentity = {
   /** False for the development workspace, which has no account behind it. */
   signedIn: boolean;
   email?: string;
+  /**
+   * True only for Reyvoca operators. The sole thing it changes in the customer
+   * dashboard is whether the admin panel is linked; the panel and the provider
+   * API both re-check server-side.
+   */
+  isAdmin?: boolean;
 };
 
 export type DocBlock =

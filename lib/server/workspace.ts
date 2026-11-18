@@ -1,19 +1,18 @@
 import type { WorkspaceIdentity } from "@/types";
+import { isAdminRequest } from "./admin";
+import { DEV_WORKSPACE_ID, DEV_WORKSPACE_NAME, PLATFORM_WORKSPACE_ID } from "./scope";
 import { getSessionUser, type SessionUser } from "./session";
+
+export { DEV_WORKSPACE_ID, DEV_WORKSPACE_NAME, PLATFORM_WORKSPACE_ID };
 
 /**
  * Which workspace a request belongs to.
  *
- * The dashboard is open during development — "Start Free" goes straight in —
- * so there is not always a signed-in account. When there is one, its id is the
- * workspace; otherwise everything belongs to one shared development workspace.
- * Every stored record carries this id, so turning authentication back on
- * partitions the data without changing a single query.
+ * When an account is signed in, its id is the workspace; otherwise everything
+ * belongs to one shared development workspace. Every stored record carries
+ * this id, so turning authentication back on partitions the data without
+ * changing a single query. The ids themselves live in `./scope`.
  */
-export const DEV_WORKSPACE_ID = "workspace_dev";
-
-/** Label for the shared development workspace, shown when nobody is signed in. */
-export const DEV_WORKSPACE_NAME = "Reyvoca Workspace";
 
 export type CurrentWorkspace = {
   id: string;
@@ -44,8 +43,11 @@ export async function currentWorkspaceId(): Promise<string> {
  */
 export async function currentIdentity(): Promise<WorkspaceIdentity> {
   const { name, user } = await currentWorkspace();
+  // Drives the one admin-only entry in the dashboard chrome. The panel itself
+  // re-checks on the server, so this is presentation only.
+  const isAdmin = await isAdminRequest();
   if (!user) {
-    return { name, user: "Demo User", initials: "RW", signedIn: false };
+    return { name, user: "Demo User", initials: "RW", signedIn: false, isAdmin };
   }
   return {
     name,
@@ -53,5 +55,6 @@ export async function currentIdentity(): Promise<WorkspaceIdentity> {
     initials: user.initials,
     signedIn: true,
     email: user.email,
+    isAdmin,
   };
 }

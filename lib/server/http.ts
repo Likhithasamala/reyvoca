@@ -5,7 +5,9 @@ export type ApiErrorCode =
   | "invalid_credentials"
   | "email_taken"
   | "unauthorized"
+  | "forbidden"
   | "bad_request"
+  | "insufficient_credits"
   | "server_error";
 
 export function jsonOk<T extends object>(data: T, status = 200): Response {

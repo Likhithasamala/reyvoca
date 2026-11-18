@@ -1,3 +1,4 @@
+import { hideEngine, resolveEngine } from "@/lib/server/engine";
 import { mutate, newId, publicRecord, read } from "@/lib/server/db";
 import { asString, jsonError, jsonOk, readJson } from "@/lib/server/http";
 import { currentWorkspaceId } from "@/lib/server/workspace";
@@ -8,14 +9,19 @@ import {
   type AgentRole,
 } from "@/lib/agents/types";
 
-/** GET /api/agents — agents in this workspace, newest first. */
+/**
+ * GET /api/agents — agents in this workspace, newest first.
+ *
+ * The engine fields are blanked on the way out: the dashboard shows what an
+ * agent does, never which vendor runs it.
+ */
 export async function GET() {
   const workspaceId = await currentWorkspaceId();
   const agents = await read((db) =>
     db.agents
       .filter((agent) => agent.workspaceId === workspaceId)
       .map(publicRecord)
-      .map((agent) => ({ ...agent, config: normalizeAgentConfig(agent.config) })),
+      .map((agent) => ({ ...agent, config: hideEngine(normalizeAgentConfig(agent.config)) })),
   );
   return jsonOk({ agents });
 }
@@ -32,6 +38,12 @@ export async function POST(request: Request) {
   const role = asString(body.role) as AgentRole;
   const config = normalizeAgentConfig(body.config);
 
+  const workspaceId = await currentWorkspaceId();
+  // The engine is Reyvoca's choice, not the caller's: whatever the request
+  // said about providers is replaced by the platform's own resolution.
+  const engine = await resolveEngine(workspaceId, config.template);
+  Object.assign(config, engine);
+
   const agent: Agent = {
     id: newId(),
     name,
@@ -45,10 +57,9 @@ export async function POST(request: Request) {
     config,
   };
 
-  const workspaceId = await currentWorkspaceId();
   await mutate((db) => {
     db.agents.unshift({ ...agent, workspaceId });
   });
 
-  return jsonOk({ agent }, 201);
+  return jsonOk({ agent: { ...agent, config: hideEngine(config) } }, 201);
 }

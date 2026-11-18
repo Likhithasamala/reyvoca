@@ -1,10 +1,21 @@
+import { adminGate } from "@/lib/server/admin";
 import { mutate, newId, read, type StoredProviderConfig } from "@/lib/server/db";
+import { invalidateEngineCache } from "@/lib/server/engine";
 import { asString, jsonError, jsonOk, readJson } from "@/lib/server/http";
 import { maskKey, validateProviderKey } from "@/lib/server/providers";
-import { currentWorkspaceId } from "@/lib/server/workspace";
+import { PLATFORM_WORKSPACE_ID } from "@/lib/server/scope";
 
 const PROVIDER_TYPES = ["llm", "stt", "tts"] as const;
 type ProviderType = (typeof PROVIDER_TYPES)[number];
+
+/**
+ * The provider stack — Reyvoca operators only.
+ *
+ * Which vendor serves speech, transcription or intelligence is not something
+ * customers configure or get to see, so every method here is behind
+ * `adminGate()` and reads and writes the platform workspace. The customer
+ * dashboard asks `/api/engine` instead, which names no vendor.
+ */
 
 /** Strips the raw key before a record leaves the API. */
 function publicProvider(row: StoredProviderConfig) {
@@ -14,12 +25,14 @@ function publicProvider(row: StoredProviderConfig) {
   return copy as Omit<StoredProviderConfig, "apiKey" | "workspaceId">;
 }
 
-/** GET /api/providers — saved keys in this workspace (masked), oldest first. */
+/** GET /api/providers — saved platform keys (masked), oldest first. */
 export async function GET() {
-  const workspaceId = await currentWorkspaceId();
+  const denied = await adminGate();
+  if (denied) return denied;
+
   const providers = await read((db) =>
     db.providerConfigs
-      .filter((row) => row.workspaceId === workspaceId)
+      .filter((row) => row.workspaceId === PLATFORM_WORKSPACE_ID)
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt))
       .map(publicProvider),
   );
@@ -28,6 +41,9 @@ export async function GET() {
 
 /** POST /api/providers — verifies a key against the provider, then saves it. */
 export async function POST(request: Request) {
+  const denied = await adminGate();
+  if (denied) return denied;
+
   const body = await readJson(request);
   if (!body) return jsonError("bad_request", "Expected a JSON body.", 400);
 
@@ -54,10 +70,9 @@ export async function POST(request: Request) {
     return jsonError("validation_error", verdict.message, 400);
   }
 
-  const workspaceId = await currentWorkspaceId();
   const row: StoredProviderConfig = {
     id: newId(),
-    workspaceId,
+    workspaceId: PLATFORM_WORKSPACE_ID,
     providerType,
     providerName,
     label,
@@ -71,6 +86,8 @@ export async function POST(request: Request) {
   await mutate((db) => {
     db.providerConfigs.push(row);
   });
+  // A new key can change which provider serves calls, so drop cached voices.
+  invalidateEngineCache();
 
   return jsonOk({ provider: publicProvider(row), message: verdict.message }, 201);
 }

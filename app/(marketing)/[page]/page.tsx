@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/metadata";
 import { notFound } from "next/navigation";
 import { getInfoPage, infoPages } from "@/config/info-pages";
+import { Navbar } from "@/components/layout/navbar";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/container";
 
@@ -25,7 +26,7 @@ export default async function InfoPage({ params }: PageProps<"/[page]">) {
 
   return (
     <section className="relative isolate overflow-hidden">
-      <div aria-hidden="true" className="hero-backdrop absolute inset-0 -z-10" />
+      <Navbar />
       <Container className="max-w-3xl py-20 lg:py-28">
         <h1 className="text-h2 font-semibold text-ink text-balance">{page.title}</h1>
         <p className="mt-4 text-lead text-ink-muted">{page.description}</p>

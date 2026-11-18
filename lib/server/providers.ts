@@ -6,7 +6,9 @@
  * Raw keys never reach the browser.
  */
 import crypto from "node:crypto";
+import { VOICE_CATALOG } from "@/lib/agents/templates";
 import { read } from "./db";
+import { PLATFORM_WORKSPACE_ID } from "./scope";
 
 const TIMEOUT_MS = 20000;
 
@@ -22,7 +24,10 @@ async function http(url: string, opts: RequestInit = {}): Promise<Response> {
 
 /* ── Key lookup ─────────────────────────────────────────────────── */
 
-/** The newest validated key a workspace saved for a provider, or null. */
+/**
+ * The key to call a provider with: the workspace's own if it has one, else the
+ * platform key the Reyvoca operator saved under `/admin/providers`.
+ */
 export async function providerKey(
   workspaceId: string,
   providerType: "llm" | "stt" | "tts",
@@ -31,13 +36,19 @@ export async function providerKey(
   const rows = await read((db) =>
     db.providerConfigs.filter(
       (row) =>
-        row.workspaceId === workspaceId &&
+        (row.workspaceId === workspaceId || row.workspaceId === PLATFORM_WORKSPACE_ID) &&
         row.providerType === providerType &&
         row.providerName === providerName &&
         row.apiKey,
     ),
   );
-  const hit = rows.sort((a, b) => (b.isValidated ? 1 : 0) - (a.isValidated ? 1 : 0))[0];
+  // A key the workspace owns wins over the platform one (an enterprise may
+  // bring its own), then a validated key over an unverified one.
+  const hit = rows.sort(
+    (a, b) =>
+      (a.workspaceId === workspaceId ? -1 : 1) - (b.workspaceId === workspaceId ? -1 : 1) ||
+      (b.isValidated ? 1 : 0) - (a.isValidated ? 1 : 0),
+  )[0];
   return hit ? { apiKey: hit.apiKey, settings: hit.settings ?? {} } : null;
 }
 
@@ -414,7 +425,8 @@ const TWO: Record<string, string> = {
 };
 const SARVAM_LANG: Record<string, string> = {
   English: "en-IN", Hindi: "hi-IN", Telugu: "te-IN", Tamil: "ta-IN", Kannada: "kn-IN",
-  Marathi: "mr-IN", Bengali: "bn-IN", Gujarati: "gu-IN",
+  Marathi: "mr-IN", Bengali: "bn-IN", Gujarati: "gu-IN", Malayalam: "ml-IN",
+  Punjabi: "pa-IN", Odia: "od-IN",
 };
 
 const esc = (s: string) =>
@@ -467,17 +479,22 @@ async function azureTts(key: string, region: string, voiceId: string, text: stri
   return { audio: await b64(r), mime: "audio/mpeg" };
 }
 
-// bulbul:v2 speakers. Older v1 names are invalid for v2 and make the API reject
-// the request — remap any legacy id to a v2 speaker of the same gender.
-const SARVAM_V2 = ["anushka", "manisha", "vidya", "arya", "abhilash", "karun", "hitesh"];
+// bulbul:v3 speakers (the full Sarvam library). Older v1/v2 names are invalid
+// for v3 and make the API reject the request — remap any legacy id to a v3
+// speaker of the same gender.
+const SARVAM_V3 = VOICE_CATALOG.sarvam.map((v) => v.id);
 const SARVAM_LEGACY: Record<string, string> = {
-  meera: "anushka", pavithra: "manisha", maitreyi: "vidya", diya: "arya", misha: "arya", maya: "vidya",
-  arvind: "abhilash", amol: "karun", amartya: "hitesh", neel: "karun", vian: "hitesh", arjun: "abhilash",
+  // bulbul:v2
+  anushka: "priya", manisha: "neha", vidya: "kavya", arya: "tanya",
+  abhilash: "rahul", karun: "kabir", hitesh: "anand",
+  // bulbul:v1
+  meera: "priya", pavithra: "neha", maitreyi: "kavya", diya: "tanya", misha: "tanya", maya: "kavya",
+  arvind: "rahul", amol: "kabir", amartya: "anand", neel: "kabir", vian: "anand", arjun: "rahul",
 };
 function sarvamSpeaker(voiceId: string) {
   const v = String(voiceId ?? "").toLowerCase().trim();
-  if (SARVAM_V2.includes(v)) return v;
-  return SARVAM_LEGACY[v] ?? "anushka";
+  if (SARVAM_V3.includes(v)) return v;
+  return SARVAM_LEGACY[v] ?? "priya";
 }
 
 async function sarvamTts(key: string, voiceId: string, text: string, lang: string) {
@@ -488,7 +505,7 @@ async function sarvamTts(key: string, voiceId: string, text: string, lang: strin
       text,
       target_language_code: SARVAM_LANG[lang] ?? "en-IN",
       speaker: sarvamSpeaker(voiceId),
-      model: "bulbul:v2",
+      model: "bulbul:v3",
     }),
   });
   const d = (await r.json().catch(() => ({}))) as ProviderErrorBody & { audios?: string[]; audio?: string };
@@ -525,7 +542,7 @@ export async function synthesize({
 
 /* ── Live voice libraries ───────────────────────────────────────── */
 
-export type ProviderVoice = { id: string; name: string; language?: string; accent?: string; locale?: string };
+export type ProviderVoice = { id: string; name: string; language?: string; accent?: string; locale?: string; gender?: string };
 
 const LANG_NAMES: Record<string, string> = {
   en: "English", hi: "Hindi", es: "Spanish", fr: "French", de: "German", pt: "Portuguese",
@@ -559,6 +576,7 @@ type CartesiaVoice = {
   name?: string;
   tagline?: string;
   language?: string;
+  gender?: string;
   accents?: CartesiaAccent[];
 };
 function mapCartesiaVoice(v: CartesiaVoice): ProviderVoice {
@@ -571,7 +589,8 @@ function mapCartesiaVoice(v: CartesiaVoice): ProviderVoice {
   const label = accentLabel(accent, locale || v.language || "");
   const tagline = (v.tagline ?? "").trim();
   const name = (v.name || v.id || "") + (tagline ? " – " + tagline : "");
-  return { id: v.id ?? "", name, language: label, accent, locale: locale || v.language || "" };
+  const gender = v.gender ? titleCase(v.gender) : "";
+  return { id: v.id ?? "", name, language: label, accent, locale: locale || v.language || "", gender };
 }
 
 // Surface Indian + General American English first, then other English, while
@@ -595,16 +614,22 @@ function sortCartesiaVoices(list: ProviderVoice[]) {
 }
 
 export async function listVoices(provider: string, apiKey: string): Promise<ProviderVoice[]> {
+  if (provider === "sarvam") {
+    // Sarvam has no list endpoint — its speaker set is fixed per model, so the
+    // bundled bulbul:v3 catalogue IS the full live library.
+    return VOICE_CATALOG.sarvam.map((v) => ({ id: v.id, name: v.name, language: v.language, gender: v.gender }));
+  }
   if (provider === "elevenlabs") {
     const r = await http("https://api.elevenlabs.io/v1/voices", { headers: { "xi-api-key": apiKey } });
     if (!r.ok) return [];
     const d = (await r.json()) as {
-      voices?: { voice_id: string; name: string; labels?: { language?: string; accent?: string } }[];
+      voices?: { voice_id: string; name: string; labels?: { language?: string; accent?: string; gender?: string } }[];
     };
     return (d.voices ?? []).map((v) => ({
       id: v.voice_id,
       name: v.name,
       language: v.labels?.language || v.labels?.accent || "",
+      gender: v.labels?.gender ? titleCase(v.labels.gender) : "",
     }));
   }
   if (provider === "cartesia") {

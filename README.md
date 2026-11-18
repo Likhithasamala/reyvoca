@@ -8,7 +8,7 @@ Reyvoca is a platform, currently in development, where businesses can create AI 
 
 ## Current phase: Phase 2 — accounts & workspace
 
-Phase 1 delivered the public website and the frontend architecture. Phase 2 adds the **backend API that the frontend now talks to**: real accounts, password hashing, httpOnly sessions and a private dashboard.
+Phase 1 delivered the public website and the frontend architecture. Phase 2 adds the **backend API that the frontend now talks to**: real accounts, password hashing, httpOnly sessions and the operator panel.
 
 The backend runs inside this same Next.js app as Route Handlers under `app/api/`, so `npm run dev` serves the frontend and the API together on one port with no extra service to start.
 
@@ -17,7 +17,7 @@ The backend runs inside this same Next.js app as Route Handlers under `app/api/`
 | Marketing homepage (`/`) | Complete. Hero with an animated call simulation, How It Works, Why Reyvoca, Use Cases, platform preview, feature stories, integrations, pricing, FAQ and a final CTA |
 | Sign In (`/signin`), Get Started (`/get-started`), Forgot Password (`/forgot-password`) | Working. Sign-up creates a real account, sign-in starts a session, and both validate on the client **and** the server |
 | Docs (`/docs`, `/docs/[slug]`) | Docs shell with a sidebar, 9 starter pages, prev/next links and mobile navigation. Pages are driven by config |
-| Dashboard (`/dashboard/*`) | Open during development — "Start Free" goes straight in, with no account required. Every section reads the API: agents, leads, campaigns and the home overview are live. The topbar and sidebar name the signed-in account when there is one, the shared development workspace otherwise. A workspace with nothing stored yet falls back to **clearly labelled sample data**, and the analytics and conversation views are still placeholders |
+| Demo requests (`/requests`) | Where signing in lands: every enquiry from the booking form, newest first, with the contact details to call back |
 | Footer pages (`/about`, `/contact`, `/careers`, `/status`, `/privacy`, `/terms`, `/security`) | Placeholder pages with honest copy. No legal text or certifications |
 | SEO | Per-page metadata, canonical URLs, OpenGraph and Twitter images, sitemap, robots, JSON-LD (Organization and FAQPage) |
 
@@ -31,7 +31,7 @@ The site does not claim customers, uptime figures or certifications. It describe
 - **Inter** loaded through `next/font`
 - **lucide-react** icons. There are no other runtime UI dependencies.
 
-Interactivity is kept small. Client components are used only for the hero call simulation, the navbar scroll state, the mobile menu, the forms, the docs/dashboard active-link state and the dashboard drawer. The FAQ accordion uses native `<details>`, and scroll reveals are CSS-only (`animation-timeline: view()`). Both respect `prefers-reduced-motion`.
+Interactivity is kept small. Client components are used only for the hero call simulation, the navbar scroll state, the mobile menu, the forms and the docs active-link state. The FAQ accordion uses native `<details>`, and scroll reveals are CSS-only (`animation-timeline: view()`). Both respect `prefers-reduced-motion`.
 
 ## Local setup
 
@@ -47,7 +47,9 @@ npm run dev
 
 Open **http://localhost:3000**. The API is on the same origin at **http://localhost:3000/api** — check it with `curl http://localhost:3000/api/health`.
 
-The dashboard is open at http://localhost:3000/dashboard with no account: everything created there belongs to a shared development workspace. To try the account flow, open http://localhost:3000/get-started and create a workspace — the dashboard chrome then names your account, your records are partitioned under it, and you sign out from the avatar menu in the topbar.
+The public site is the stage and the booking form; there is no self-serve product route. To try the account flow, open http://localhost:3000/get-started and create a workspace — signing in lands on **/requests**, the enquiries waiting to be called back, and you sign out from there.
+
+The signed-in product workspace is not part of the site at the moment. Its code is kept, unbuilt, under `parked/` — see `parked/README.md`.
 
 ## Development commands
 
@@ -68,13 +70,12 @@ app/
     [page]/page.tsx     /about, /contact, /privacy … (generated from config/info-pages.ts)
   (auth)/               /signin, /get-started, /forgot-password
   docs/                 Docs layout, /docs and /docs/[slug]
-  dashboard/            Dashboard shell plus a route per section: agents, calling,
-                        results, conversations, performance, phone-numbers, billing, settings
-                        layout.tsx resolves the workspace from the session on the server
+  admin/                Operator panel: providers and billing (404 for everyone else)
+  requests/             Demo requests from the booking form (sign-in lands here)
   api/                  Backend Route Handlers
     health/route.ts
     auth/               sign-up, sign-in, sign-out, session, password-reset
-    dashboard/overview/ Live workspace figures
+    dashboard/overview/ Workspace figures
     agents/, leads/, campaigns/, instant-setup/, webhook-events/
   layout.tsx            Root layout, fonts, global metadata
   globals.css           Design tokens, utilities, motion rules
@@ -87,20 +88,15 @@ components/
                         Integrations, Pricing, PricingCard, Faq, FinalCta
   auth/                 AuthShell, SignInForm, GetStartedForm, ForgotPasswordForm, FormNotice, GoogleButton
   docs/                 DocsSidebar / DocsMobileNav, DocContent, DocPager
-  dashboard/            DashboardShell, SidebarNav, Topbar, WorkspaceMenu, SignOutButton,
-                        GlobalSearch, GettingStartedCard, AgentCard
-    ui/                 Shared product primitives: MetricCard, DataTable, SectionCard,
-                        PageHeader, StatusBadge, DemoTag, EmptyState, Notice, BarChart
-    calling/            Campaign wizard, CSV upload, webhook setup, live call views
-    views/              Page-level views: agents, results, conversations, settings, campaigns
+  panel/                Signed-in primitives: MetricCard, DataTable, SectionCard, PageHeader,
+                        StatusBadge, DemoTag, EmptyState, Notice, BarChart, SignOutButton
+  admin/                AdminShell, ProvidersView, BillingView
   seo/                  JsonLd
 config/
   site.ts               Site URL, routes, navigation and footer links
   marketing.ts          All homepage copy, plus alternative taglines
   docs.ts               Docs pages (add an entry to add a page, sidebar and sitemap entry)
-  dashboard.ts          Marketing-side dashboard preview data
-  dashboard-nav.ts      Dashboard sidebar navigation
-  dashboard-demo.ts     Example data for the views with no endpoint behind them yet
+  admin-nav.ts          Operator panel navigation
   brand.ts              Brand palette and voice tokens
   info-pages.ts         Footer info pages
 lib/
@@ -109,7 +105,7 @@ lib/
     password.ts         scrypt hashing and verification
     session.ts          Session issuing, lookup and teardown
     workspace.ts        Resolves the request's workspace and identity from the session
-    overview.ts         Dashboard figures, shared by the API route and the page
+    overview.ts         Workspace figures, shared by the API route and its callers
     leads.ts            Lead validation, de-duplication and ingestion
     http.ts             JSON response helpers
   auth/                 AuthService interface + implementations (see below)
@@ -141,10 +137,13 @@ The API lives in `app/api/` as Route Handlers and is served by the same dev serv
 | `PATCH` `DELETE` | `/api/campaigns/[id]` | Updates or removes one campaign |
 | `GET` `PUT` | `/api/instant-setup` | Reads or saves the instant-calling configuration |
 | `GET` | `/api/webhook-events` | The recent inbound delivery log, newest first |
+| `GET` | `/api/engine` | What a signed-in workspace may know about the voice engine: whether conversation, transcription and voice are live, plus the voices and languages on offer. Names no vendor |
+| `GET` `POST` | `/api/providers` | **Operators only.** The platform's provider keys (masked), or saves one after verifying it with the provider. `403` for everyone else |
+| `DELETE` | `/api/providers/[id]` | **Operators only.** Removes a platform key |
 
-Every dashboard endpoint is scoped to the current workspace: the signed-in account when there is a session, and one shared development workspace otherwise (`lib/server/workspace.ts`). Turning the gate back on partitions the data without changing a query.
+Every workspace endpoint is scoped to the current workspace: the signed-in account when there is a session, and one shared development workspace otherwise (`lib/server/workspace.ts`). Turning the gate back on partitions the data without changing a query.
 
-Responses are JSON. Success is `{ ok: true, … }`; failure is `{ ok: false, code, message }`, where `code` is one of `validation_error`, `invalid_credentials`, `email_taken`, `unauthorized`, `bad_request` or `server_error`. The client maps `code` and `message` straight into the form notices, so server-side validation is what the user actually sees.
+Responses are JSON. Success is `{ ok: true, … }`; failure is `{ ok: false, code, message }`, where `code` is one of `validation_error`, `invalid_credentials`, `email_taken`, `unauthorized`, `forbidden`, `bad_request` or `server_error`. The client maps `code` and `message` straight into the form notices, so server-side validation is what the user actually sees.
 
 ```bash
 # create an account and keep the session cookie
@@ -162,7 +161,17 @@ curl -b jar.txt http://localhost:3000/api/auth/session
 - Sessions are opaque 32-byte random tokens in an **httpOnly**, `SameSite=Lax` cookie (`Secure` in production), valid for 30 days. The database stores only the token's SHA-256 hash, so a leaked datastore does not hand over live sessions.
 - Sign-in answers identically for an unknown email and a wrong password, and password reset always answers the same, so neither endpoint reveals which emails are registered.
 - Every endpoint re-validates its input; the client-side checks are for feedback only.
-- `/dashboard` is **not** gated in this phase: "Start Free" opens the product directly, so the dashboard and its API are reachable without an account and share one development workspace. `app/dashboard/layout.tsx` resolves the session on the server to name the workspace; re-adding a redirect there is what makes the dashboard private again.
+- `/requests` requires a session and redirects to `/signin` without one. `/admin` answers **404** to anyone who is not an operator, so customers never learn the panel exists, and the provider API re-checks on every call. The workspace API still shares one development workspace when there is no session (`lib/server/workspace.ts`).
+
+### The engine, and who may see it
+
+Which vendors serve speech, transcription and intelligence is a Reyvoca operations concern, not a customer-facing feature. Customers choose a voice, the languages and how the agent behaves; everything else is resolved on the server.
+
+- **Customers** read `/api/engine`, which answers with capability flags, voices and languages — never a provider name. Agent configs leave the API with their engine fields blanked (`hideEngine` in `lib/server/engine.ts`), and `/api/agents/preview` and `/api/agents/speak` ignore any provider the browser tries to send and resolve it themselves (`resolveEngine`).
+- **Operators** work in the panel at `/admin`: `/admin` shows what every call currently runs on, `/admin/providers` manages the keys. Access is decided by `lib/server/admin.ts` and enforced in `app/admin/layout.tsx` (a non-operator gets a 404, not a redirect) and again on every provider endpoint.
+- **Provider keys** are the platform's, saved under one shared workspace (`PLATFORM_WORKSPACE_ID`), so one change applies to every customer. A key saved against a specific workspace still wins for that workspace, which is how an enterprise brings its own.
+
+Who counts as an operator: an account whose stored `role` is `admin`, or whose email is listed in `REYVOCA_ADMIN_EMAILS`. In development with that variable unset, the panel is open to the local machine so the stack can be configured before the first account exists. In production with it unset, nobody can reach it.
 
 ### Datastore
 
@@ -189,6 +198,7 @@ See `.env.example`. Copy it to `.env.local` and never commit real values.
 | --- | --- |
 | `NEXT_PUBLIC_SITE_URL` | Canonical site origin for canonical tags, OpenGraph URLs and the sitemap. Defaults to `http://localhost:3000`. Set it to the production domain when deploying |
 | `NEXT_PUBLIC_API_URL` | Base URL of the Reyvoca API. Defaults to the same-origin relative path `/api`, since the backend ships inside this app. Leave empty to run the frontend with no backend |
+| `REYVOCA_ADMIN_EMAILS` | Comma-separated emails allowed into the operator panel at `/admin`, where the provider stack is configured. Unset in development the panel is open locally; unset in production it is closed to everyone |
 
 Phase 2 needs no secrets or provider credentials. Email delivery for password resets arrives with a mail provider in a later phase; until then the request is logged, not sent.
 
