@@ -62,3 +62,6 @@ next-env.d.ts
 
 # Local Netlify folder
 .netlify
+
+# stray tool logs at the repo root
+/tailwindcss-*.log
