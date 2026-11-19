@@ -1,10 +1,16 @@
 /**
- * Minimal file-backed datastore for the local Reyvoca backend.
+ * The Reyvoca datastore: Postgres in production, a JSON file locally.
  *
- * Phase 2 runs on a JSON file so the backend works with `npm run dev` and no
- * database to install. The module exports only `read`/`mutate`, so swapping in
- * Postgres/Prisma later means rewriting this file alone.
+ * It began as a file-backed store so the backend worked with `npm run dev`
+ * and no database to install, and noted that swapping in Postgres would mean
+ * rewriting this file alone. That is what happened - `read`/`mutate` kept
+ * their signatures and none of their 67 call sites changed.
+ *
+ * Set DATABASE_URL and it is Postgres (Neon). Leave it unset and it is the
+ * file, exactly as before. See the storage section below for why production
+ * cannot use the file.
  */
+import { neon } from "@neondatabase/serverless";
 import { randomUUID } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import path from "node:path";
@@ -325,6 +331,24 @@ export type Database = {
   pricing: StoredPricing | null;
 };
 
+/* --------------------------------------------------------------- storage */
+
+/**
+ * Two engines behind one interface.
+ *
+ * Postgres (Neon) whenever DATABASE_URL is set, which is how production runs.
+ * Vercel's filesystem is read-only outside /tmp, and /tmp does not survive
+ * between invocations, so the file store there would lose every account on
+ * every request - and silently, because an unreadable file is treated as an
+ * empty database. The file stays as the fallback so `npm run dev` still works
+ * with nothing installed, which is what this module set out to allow.
+ *
+ * Both engines hold the *same JSON document*, so `scripts/db-import.mjs` can
+ * lift one into the other, and `read`/`mutate` are unchanged for all 67 call
+ * sites that use them.
+ */
+const sql = process.env.DATABASE_URL ? neon(process.env.DATABASE_URL) : null;
+
 const DATA_DIR = path.join(process.cwd(), ".data");
 const DATA_FILE = path.join(DATA_DIR, "reyvoca.json");
 
@@ -350,44 +374,56 @@ const emptyDatabase = (): Database => ({
   providerConfigs: [],
 });
 
-async function load(): Promise<Database> {
+/** The whole document lives in one row, and this is its key. */
+const STORE_ID = 1;
+
+/**
+ * Forward-compatibility fixes applied to whatever comes back from either
+ * engine. These used to live inside the file loader; they are shared now so a
+ * document imported into Postgres is repaired identically.
+ */
+function normalise(parsed: Partial<Database>): Database {
+  // Each collection is defaulted, so a document written by an earlier version
+  // loads cleanly instead of crashing on a missing key.
+  const db = { ...emptyDatabase(), ...parsed };
+
+  // Provider keys used to be saved per workspace, when every customer
+  // connected their own. They are Reyvoca's now, configured once in the
+  // operator panel, so keys written by an earlier version are adopted by the
+  // platform workspace - otherwise they would be invisible to the only screen
+  // that can still manage them. Idempotent, and persisted by the next write.
+  db.providerConfigs = db.providerConfigs.map((row) =>
+    row.workspaceId === PLATFORM_WORKSPACE_ID ? row : { ...row, workspaceId: PLATFORM_WORKSPACE_ID },
+  );
+
+  // Accounts written before email verification existed are grandfathered as
+  // verified: they were created when confirming an address was not asked of
+  // anyone, so treating them as unconfirmed would nag them for a step they
+  // were never offered. `null` is the real "not verified yet" value, and only
+  // sign-up writes it.
+  db.users = db.users.map((row) =>
+    row.emailVerifiedAt === undefined ? { ...row, emailVerifiedAt: row.createdAt } : row,
+  );
+
+  // Sessions predate device management, so they carry no id. One is minted
+  // here rather than dropping the row, which would sign people out.
+  db.sessions = db.sessions.map((row) => (row.id ? row : { ...row, id: randomUUID() }));
+
+  return db;
+}
+
+/* ----------------------------------------------------------- file engine */
+
+async function loadFile(): Promise<Database> {
   try {
-    const parsed = JSON.parse(await readFile(DATA_FILE, "utf8")) as Partial<Database>;
-    // Each collection is defaulted, so a file written by an earlier version
-    // loads cleanly instead of crashing on a missing key.
-    const db = { ...emptyDatabase(), ...parsed };
-
-    // Provider keys used to be saved per workspace, when every customer
-    // connected their own. They are Reyvoca's now, configured once in the
-    // operator panel, so keys written by an earlier version are adopted by the
-    // platform workspace — otherwise they would be invisible to the only
-    // screen that can still manage them. Idempotent, and persisted by the
-    // next write.
-    db.providerConfigs = db.providerConfigs.map((row) =>
-      row.workspaceId === PLATFORM_WORKSPACE_ID ? row : { ...row, workspaceId: PLATFORM_WORKSPACE_ID },
-    );
-
-    // Accounts written before email verification existed are grandfathered as
-    // verified: they were created when confirming an address was not asked of
-    // anyone, so treating them as unconfirmed would nag them for a step they
-    // were never offered. `null` is the real "not verified yet" value, and
-    // only sign-up writes it.
-    db.users = db.users.map((row) =>
-      row.emailVerifiedAt === undefined ? { ...row, emailVerifiedAt: row.createdAt } : row,
-    );
-
-    // Sessions predate device management, so they carry no id. One is minted
-    // here rather than dropping the row, which would sign people out.
-    db.sessions = db.sessions.map((row) => (row.id ? row : { ...row, id: randomUUID() }));
-
-    return db;
+    return normalise(JSON.parse(await readFile(DATA_FILE, "utf8")) as Partial<Database>);
   } catch {
     // Missing or unreadable file: start from an empty database.
     return emptyDatabase();
   }
 }
 
-async function save(db: Database): Promise<void> {
+async function saveFile(db: Database): Promise<void> {
   await mkdir(DATA_DIR, { recursive: true });
   // Write to a temp file first so a crash mid-write cannot truncate the store.
   const temp = `${DATA_FILE}.${randomUUID()}.tmp`;
@@ -395,28 +431,121 @@ async function save(db: Database): Promise<void> {
   await rename(temp, DATA_FILE);
 }
 
+/* ------------------------------------------------------- postgres engine */
+
 /**
- * Serialises every mutation. Route handlers can run concurrently, and
- * read-modify-write on a single file is not safe without this queue.
+ * Created on first use rather than by a separate migration step, so a fresh
+ * Neon project needs no setup before the first request. The promise is cached,
+ * so the statement runs once per warm instance rather than once per query.
+ */
+let schemaReady: Promise<void> | undefined;
+
+function ensureSchema(client: NonNullable<typeof sql>): Promise<void> {
+  schemaReady ??= client`
+    CREATE TABLE IF NOT EXISTS reyvoca_store (
+      id         integer PRIMARY KEY,
+      data       jsonb NOT NULL,
+      version    bigint NOT NULL DEFAULT 1,
+      updated_at timestamptz NOT NULL DEFAULT now()
+    )
+  `.then(() => undefined);
+  return schemaReady;
+}
+
+/** The document, and the version it was read at for the compare-and-set below. */
+async function loadPg(client: NonNullable<typeof sql>): Promise<{ db: Database; version: number }> {
+  await ensureSchema(client);
+  const rows = (await client`
+    SELECT data, version FROM reyvoca_store WHERE id = ${STORE_ID}
+  `) as { data: Partial<Database>; version: string | number }[];
+
+  // No row yet: version 0 is the sentinel the writer turns into an INSERT.
+  if (rows.length === 0) return { db: emptyDatabase(), version: 0 };
+  return { db: normalise(rows[0].data), version: Number(rows[0].version) };
+}
+
+/**
+ * How many times a mutation replays when another instance wrote first.
+ *
+ * Replay is safe because every `mutate` callback in the codebase is a
+ * synchronous, in-memory change with no I/O of its own - there is nothing to
+ * double-send. If one ever needs to await something external, it must not go
+ * inside `mutate`.
+ */
+const MAX_WRITE_ATTEMPTS = 5;
+
+/**
+ * Compare-and-set against the row's version, replaying on contention.
+ *
+ * Two instances can run a mutation at the same moment, and the in-process
+ * queue below cannot see across them. The UPDATE therefore only lands if the
+ * version still matches the one that was read, and a mutation that loses the
+ * race is re-applied to the winner's state instead of overwriting it.
+ */
+async function mutatePg<T>(
+  client: NonNullable<typeof sql>,
+  change: (db: Database) => T | Promise<T>,
+): Promise<T> {
+  for (let attempt = 1; attempt <= MAX_WRITE_ATTEMPTS; attempt += 1) {
+    const { db, version } = await loadPg(client);
+    const result = await change(db);
+    const data = JSON.stringify(db);
+
+    const written =
+      version === 0
+        ? ((await client`
+            INSERT INTO reyvoca_store (id, data, version) VALUES (${STORE_ID}, ${data}::jsonb, 1)
+            ON CONFLICT (id) DO NOTHING
+            RETURNING id
+          `) as unknown[])
+        : ((await client`
+            UPDATE reyvoca_store
+               SET data = ${data}::jsonb, version = version + 1, updated_at = now()
+             WHERE id = ${STORE_ID} AND version = ${version}
+            RETURNING id
+          `) as unknown[]);
+
+    if (written.length === 1) return result;
+
+    // Someone else wrote first. Give them a moment, then replay on fresh state.
+    await new Promise((resolve) => setTimeout(resolve, 25 * attempt));
+  }
+
+  throw new Error(
+    `Reyvoca store: write lost ${MAX_WRITE_ATTEMPTS} races in a row. Another instance is writing continuously, or the store row is held open.`,
+  );
+}
+
+/**
+ * Serialises mutations within one process. Still needed for the file engine,
+ * where read-modify-write on a single file is not safe without it. The
+ * Postgres engine does not use it: its safety comes from the version check,
+ * which holds across instances, which this cannot.
  */
 let queue: Promise<unknown> = Promise.resolve();
 
-export function read<T>(select: (db: Database) => T): Promise<T> {
-  const run = queue.then(async () => select(await load()));
+function queued<T>(job: () => Promise<T>): Promise<T> {
+  const run = queue.then(job);
   queue = run.catch(() => {});
   return run;
 }
 
+/* ------------------------------------------------------------ public API */
+
+export function read<T>(select: (db: Database) => T): Promise<T> {
+  if (sql) return loadPg(sql).then(({ db }) => select(db));
+  return queued(async () => select(await loadFile()));
+}
+
 /** Runs `change` against the current database and persists the result. */
 export function mutate<T>(change: (db: Database) => T | Promise<T>): Promise<T> {
-  const run = queue.then(async () => {
-    const db = await load();
+  if (sql) return mutatePg(sql, change);
+  return queued(async () => {
+    const db = await loadFile();
     const result = await change(db);
-    await save(db);
+    await saveFile(db);
     return result;
   });
-  queue = run.catch(() => {});
-  return run;
 }
 
 /**
