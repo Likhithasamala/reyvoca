@@ -465,14 +465,25 @@ async function loadPg(client: NonNullable<typeof sql>): Promise<{ db: Database; 
 }
 
 /**
- * How many times a mutation replays when another instance wrote first.
+ * Ceilings on how long a mutation keeps replaying when others write first.
  *
  * Replay is safe because every `mutate` callback in the codebase is a
  * synchronous, in-memory change with no I/O of its own - there is nothing to
  * double-send. If one ever needs to await something external, it must not go
  * inside `mutate`.
+ *
+ * Both a deadline and an attempt cap, because the right number of attempts
+ * depends on the round trip to Neon, which differs by an order of magnitude
+ * between a laptop in India and a function in the same region as the
+ * database. A fixed attempt count tuned for one is wrong for the other; the
+ * deadline is what actually bounds the request, and the attempt cap only
+ * stops a pathologically fast loop from spinning.
  */
-const MAX_WRITE_ATTEMPTS = 5;
+const WRITE_DEADLINE_MS = 8_000;
+const MAX_WRITE_ATTEMPTS = 25;
+
+/** Longest single pause between replays. */
+const MAX_BACKOFF_MS = 400;
 
 /**
  * Compare-and-set against the row's version, replaying on contention.
@@ -481,38 +492,81 @@ const MAX_WRITE_ATTEMPTS = 5;
  * queue below cannot see across them. The UPDATE therefore only lands if the
  * version still matches the one that was read, and a mutation that loses the
  * race is re-applied to the winner's state instead of overwriting it.
+ *
+ * Losers wait a *fully jittered* exponential backoff: a random point in
+ * [0, cap) rather than the cap itself. Without the jitter every loser of the
+ * same round wakes at the same instant and collides again, which is how a
+ * burst of simultaneous writes used to exhaust its attempts and 500 - with
+ * twelve concurrent enquiries, five of them were lost. The write this
+ * protects is the public "book a demo" form, so a dropped one is a dropped
+ * customer.
  */
 async function mutatePg<T>(
   client: NonNullable<typeof sql>,
   change: (db: Database) => T | Promise<T>,
 ): Promise<T> {
+  const startedAt = Date.now();
+  let state = await loadPg(client);
+
   for (let attempt = 1; attempt <= MAX_WRITE_ATTEMPTS; attempt += 1) {
-    const { db, version } = await loadPg(client);
+    const { db, version } = state;
     const result = await change(db);
     const data = JSON.stringify(db);
 
-    const written =
-      version === 0
-        ? ((await client`
-            INSERT INTO reyvoca_store (id, data, version) VALUES (${STORE_ID}, ${data}::jsonb, 1)
-            ON CONFLICT (id) DO NOTHING
-            RETURNING id
-          `) as unknown[])
-        : ((await client`
-            UPDATE reyvoca_store
-               SET data = ${data}::jsonb, version = version + 1, updated_at = now()
-             WHERE id = ${STORE_ID} AND version = ${version}
-            RETURNING id
-          `) as unknown[]);
+    if (version === 0) {
+      const inserted = (await client`
+        INSERT INTO reyvoca_store (id, data, version) VALUES (${STORE_ID}, ${data}::jsonb, 1)
+        ON CONFLICT (id) DO NOTHING
+        RETURNING id
+      `) as unknown[];
+      if (inserted.length === 1) return result;
+      state = await loadPg(client);
+    } else {
+      // One round trip, not two: attempt the compare-and-set and read the row
+      // in the same statement. When the UPDATE matches, `written` comes back
+      // non-null and we are done. When it does not, the same result carries
+      // the state that beat us, so the replay costs no extra trip.
+      //
+      // The SELECT reads this statement's snapshot, taken before the UPDATE,
+      // so on a loss `data`/`version` are the winner's committed values -
+      // exactly what the replay needs. Halving the trips per attempt is what
+      // lets a burst drain inside the deadline on a high-latency link.
+      const rows = (await client`
+        WITH attempted AS (
+          UPDATE reyvoca_store
+             SET data = ${data}::jsonb, version = version + 1, updated_at = now()
+           WHERE id = ${STORE_ID} AND version = ${version}
+          RETURNING version
+        )
+        SELECT (SELECT version FROM attempted) AS written,
+               CASE WHEN (SELECT version FROM attempted) IS NULL THEN store.data END AS data,
+               store.version AS version
+          FROM reyvoca_store store
+         WHERE store.id = ${STORE_ID}
+      `) as { written: string | number | null; data: Partial<Database>; version: string | number }[];
 
-    if (written.length === 1) return result;
+      if (rows.length === 0) {
+        // The row vanished under us. Treat it as "not created yet" and let
+        // the next pass take the INSERT branch.
+        state = { db: emptyDatabase(), version: 0 };
+      } else if (rows[0].written !== null && rows[0].written !== undefined) {
+        return result;
+      } else {
+        state = { db: normalise(rows[0].data), version: Number(rows[0].version) };
+      }
+    }
 
-    // Someone else wrote first. Give them a moment, then replay on fresh state.
-    await new Promise((resolve) => setTimeout(resolve, 25 * attempt));
+    // Stop if there is no time left to try again, so the caller gets the
+    // error rather than the request hanging on past the platform's own
+    // function timeout.
+    if (Date.now() - startedAt >= WRITE_DEADLINE_MS) break;
+
+    const cap = Math.min(25 * 2 ** (attempt - 1), MAX_BACKOFF_MS);
+    await new Promise((resolve) => setTimeout(resolve, Math.random() * cap));
   }
 
   throw new Error(
-    `Reyvoca store: write lost ${MAX_WRITE_ATTEMPTS} races in a row. Another instance is writing continuously, or the store row is held open.`,
+    `Reyvoca store: write did not land within ${WRITE_DEADLINE_MS}ms (${MAX_WRITE_ATTEMPTS} attempts max). Another instance is writing continuously, or the store row is held open.`,
   );
 }
 
