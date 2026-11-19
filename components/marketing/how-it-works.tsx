@@ -16,15 +16,11 @@ export function HowItWorks() {
       className="bg-canvas py-28 lg:py-36"
     >
       <Container>
-        <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">
-          {howItWorks.eyebrow}
-        </p>
-        <h2 id="how-it-works-heading" className="mt-5 max-w-[20ch] text-h2 font-semibold text-ink text-balance">
+        <h2 id="how-it-works-heading" className="text-h2 font-semibold text-ink">
           {howItWorks.heading}
         </h2>
-        <p className="mt-4 max-w-[46ch] text-lead text-ink-muted">{howItWorks.subheading}</p>
 
-        <ol className="mt-16 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
+        <ol className="mt-14 grid gap-px overflow-hidden rounded-2xl border border-line bg-line sm:grid-cols-2 lg:grid-cols-5">
           {howItWorks.steps.map((step) => (
             <li key={step.number} className="flex min-w-0 flex-col gap-3 bg-surface p-6 lg:p-7">
               <span className="font-mono text-sm font-semibold tracking-[0.1em] text-accent-strong tabular-nums">

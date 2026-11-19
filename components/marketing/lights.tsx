@@ -96,9 +96,11 @@ export function Lights() {
     <section
       id="lights"
       aria-label="The same evening, with Reyvoca on the line and without it"
-      className="lights-ground relative isolate overflow-hidden pt-[clamp(2rem,3vw,3rem)] pb-24 lg:pb-32"
+      className="lights-ground relative isolate overflow-hidden pb-24 lg:pb-32"
     >
-      {/* The seam: cream burning down through ember into the night */}
+      {/* The seam: cream burning down through ember into the night. Its top
+          padding comes from .lights-ground, derived from the band's length, so
+          the ramp finishes before the picture starts. */}
       <div aria-hidden="true" className="stage-grain absolute inset-0 z-[2]" />
 
       <div ref={shellRef} className="relative z-[3] mt-2 w-full px-5 sm:px-8">

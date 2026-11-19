@@ -29,13 +29,24 @@ export function LogoMark({ className, inverse = false }: { className?: string; i
   );
 }
 
-type LogoProps = { href?: string; className?: string; inverse?: boolean };
+/** `compact` is for the sticky bar, where the mark sets the bar's height. */
+type LogoProps = { href?: string; className?: string; inverse?: boolean; compact?: boolean };
 
-export function Logo({ href = "/", className, inverse = false }: LogoProps) {
+export function Logo({ href = "/", className, inverse = false, compact = false }: LogoProps) {
   return (
-    <Link href={href} className={cn("inline-flex items-center gap-2.5", className)} aria-label="Reyvoca home">
-      <LogoMark inverse={inverse} />
-      <span className={cn("text-[1.1875rem] font-semibold tracking-[-0.02em]", inverse ? "text-white" : "text-ink")}>
+    <Link
+      href={href}
+      className={cn("inline-flex items-center", compact ? "gap-2" : "gap-2.5", className)}
+      aria-label="Reyvoca home"
+    >
+      <LogoMark inverse={inverse} className={compact ? "size-7" : undefined} />
+      <span
+        className={cn(
+          "font-semibold tracking-[-0.02em]",
+          compact ? "text-[1.0625rem]" : "text-[1.1875rem]",
+          inverse ? "text-white" : "text-ink",
+        )}
+      >
         Reyvoca
       </span>
     </Link>

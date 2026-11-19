@@ -50,7 +50,7 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
         aria-expanded={open}
         aria-controls={PANEL_ID}
         aria-label={open ? "Close menu" : "Open menu"}
-        className="-mr-2 inline-flex size-11 items-center justify-center rounded-full text-ink hover:bg-surface-muted"
+        className="-mr-2 inline-flex size-10 items-center justify-center rounded-full text-ink hover:bg-surface-muted"
       >
         {open ? <X className="size-5" /> : <Menu className="size-5" />}
       </button>
@@ -59,7 +59,7 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
         id={PANEL_ID}
         ref={panelRef}
         hidden={!open}
-        className="absolute inset-x-0 top-full h-[calc(100dvh-56px)] overflow-y-auto border-t border-line bg-canvas"
+        className="absolute inset-x-0 top-full h-[calc(100dvh-48px)] overflow-y-auto border-t border-line bg-canvas"
       >
         <nav aria-label="Mobile" className="px-5 pt-4 pb-8 sm:px-8">
           <ul className="divide-y divide-line">
@@ -77,7 +77,7 @@ export function MobileMenu({ links }: { links: NavLink[] }) {
           </ul>
           <div className="mt-8 grid gap-3 sm:grid-cols-2">
             <ButtonLink href={routes.signIn} variant="secondary" size="lg" onClick={close}>
-              Sign In
+              Sign in
             </ButtonLink>
             <ButtonLink href={routes.bookDemo} size="lg" onClick={close}>
               Book a demo

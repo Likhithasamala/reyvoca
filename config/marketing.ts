@@ -8,7 +8,7 @@
  *   anatomy   — the call becomes data: transcript → intent → outcome → action
  *   inbound   — put an agent on the line and every call gets answered
  *   build     — you assemble this yourself: instructions, voice, knowledge, calling
- *   pricing   — start free; real pricing stated honestly as unannounced
+ *   pricing   — real pricing stated honestly as unannounced
  *   faq       — real questions, honest answers
  *   cta       — one closing invitation
  */
@@ -19,13 +19,14 @@ export const hero = {
   line2: "Reyvoca answers.",
   subtitle:
     "Build AI voice agents that hold real business conversations — qualify the lead, book the visit, screen the candidate — and file every outcome in your workspace.",
-  primaryCta: { label: "Start Free", href: routes.bookDemo },
+  primaryCta: { label: "Book a demo", href: routes.bookDemo },
   secondaryCta: { label: "Read the docs", href: routes.docs },
   note: "Free while in development. Test every agent in the browser before it calls anyone.",
 };
 
 export const anatomy = {
-  id: "how-it-works",
+  id: "what-a-call-becomes",
+  eyebrow: "How it works",
   heading: "What a call becomes",
   steps: [
     {
@@ -111,7 +112,7 @@ export const pricing = {
       period: "pricing unannounced",
       description:
         "Phone numbers, outbound campaigns, knowledge bases, actions and team seats. The production tier; usage-based pricing lands ahead of public launch.",
-      cta: { label: "Start free, grow later", href: routes.bookDemo },
+      cta: { label: "Book a demo", href: routes.bookDemo },
     },
     {
       name: "Enterprise",
@@ -170,7 +171,8 @@ export const finalCta = {
   line1: "Your next enquiry",
   line2: "could already be on a call.",
   cta: { label: "Book a demo", href: routes.bookDemo },
-  note: "We build your agent with you on the call, in your language, on your own questions. No signup, no card.",
+  secondary: { label: "How it works", href: routes.howItWorks },
+  note: "We build the first agent with you on the call — your language, your questions. The rate is quoted against your real volume.",
 };
 
 /**
@@ -182,9 +184,7 @@ export const finalCta = {
  */
 export const howItWorks = {
   id: "how-it-works",
-  eyebrow: "How it works",
-  heading: "An enquiry arrives. Somebody has to call it.",
-  subheading: "That somebody is the part we replace.",
+  heading: "How it works",
   steps: [
     {
       number: "01",

@@ -1,32 +1,28 @@
-import Link from "next/link";
+import type { ReactNode } from "react";
 import { finalCta } from "@/config/marketing";
-import { Container } from "@/components/ui/container";
+import { CinematicClose } from "@/components/marketing/cinematic-close";
 
 /**
- * The designed close: the invitation set large, the action ending the
- * sentence as a real button sized in em so it scales with the type.
+ * The designed close, as a scroll-driven scene: ivory and ink, then an ember
+ * rising out of the floor, then night — with "could already be on a call."
+ * revealed in white only once there is orange behind it to carry it.
+ *
+ * Anything passed as children rides the same night below the headline, so the
+ * close and the booking section read as one surface rather than two blocks.
+ *
+ * The copy is untouched; this is the staging for it. The scene itself lives in
+ * <CinematicClose/> so the same treatment can carry other marketing pages.
  */
-export function FinalCta() {
+export function FinalCta({ children }: { children?: ReactNode }) {
   return (
-    <section aria-labelledby="cta-heading" className="bg-surface pt-28 pb-10 lg:pt-36">
-      <Container>
-        <h2
-          id="cta-heading"
-          className="text-[clamp(2rem,6vw,5.5rem)] leading-[1.05] font-semibold tracking-tight text-ink"
-        >
-          <span className="block">{finalCta.line1}</span>
-          <span className="block">{finalCta.line2}</span>
-        </h2>
-        <div className="mt-10 flex flex-wrap items-center gap-6">
-          <Link
-            href={finalCta.cta.href}
-            className="inline-block rounded-full bg-brand px-10 py-4 text-xl leading-none font-semibold text-white transition-colors hover:bg-brand-hover"
-          >
-            {finalCta.cta.label}
-          </Link>
-          <p className="max-w-[40ch] text-base text-ink-muted">{finalCta.note}</p>
-        </div>
-      </Container>
-    </section>
+    <CinematicClose
+      line1={finalCta.line1}
+      line2={finalCta.line2}
+      note={finalCta.note}
+      cta={finalCta.cta}
+      secondary={finalCta.secondary}
+    >
+      {children}
+    </CinematicClose>
   );
 }

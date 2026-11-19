@@ -3,12 +3,22 @@ import { routes } from "@/config/site";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { GetStartedForm } from "@/components/auth/get-started-form";
 import { pageMetadata } from "@/lib/metadata";
+import { googleConfigured } from "@/lib/server/oauth/google";
 
+/**
+ * Not a public page. Reyvoca workspaces are opened by us on the demo call, so
+ * nothing links here and it stays out of the index.
+ */
 export const metadata = pageMetadata({
   title: "Get Started",
-  description: "Create your Reyvoca workspace and build your first AI voice agent.",
+  description:
+    "Open a Reyvoca workspace. Reyvoca is not self-serve — we build the first AI voice agent with you on the demo call.",
   path: routes.getStarted,
+  noIndex: true,
 });
+
+/** Read at request time so adding Google credentials needs no rebuild. */
+export const dynamic = "force-dynamic";
 
 export default function GetStartedPage() {
   return (
@@ -18,13 +28,16 @@ export default function GetStartedPage() {
       footer={
         <>
           Already have an account?{" "}
-          <Link href={routes.signIn} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
+          <Link
+            href={routes.signIn}
+            className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink"
+          >
             Sign In
           </Link>
         </>
       }
     >
-      <GetStartedForm />
+      <GetStartedForm googleEnabled={googleConfigured()} />
     </AuthShell>
   );
 }

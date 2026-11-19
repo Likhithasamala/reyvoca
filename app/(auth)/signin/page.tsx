@@ -1,30 +1,34 @@
-import Link from "next/link";
 import { routes } from "@/config/site";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { SignInForm } from "@/components/auth/sign-in-form";
+import { AuthStatusNotice } from "@/components/auth/status-notice";
 import { pageMetadata } from "@/lib/metadata";
+import { googleConfigured } from "@/lib/server/oauth/google";
 
 export const metadata = pageMetadata({
   title: "Sign In",
-  description: "Sign in to your Reyvoca workspace.",
+  description:
+    "Sign in to your Reyvoca workspace to see the enquiries your AI voice agent has answered, qualified and booked, and the recording of every call it made.",
   path: routes.signIn,
 });
 
-export default function SignInPage() {
+/** `?next=` and `?status=` differ per visit, so this page is never cached. */
+export const dynamic = "force-dynamic";
+
+export default async function SignInPage({ searchParams }: PageProps<"/signin">) {
+  const { next, status } = await searchParams;
+  // Only same-site paths are honoured: taking an absolute URL here would make
+  // the sign-in page a redirector to anywhere.
+  const safeNext =
+    typeof next === "string" && next.startsWith("/") && !next.startsWith("//") ? next : undefined;
+
   return (
     <AuthShell
       title="Welcome back"
-      description="Sign in to your Reyvoca workspace."
-      footer={
-        <>
-          New to Reyvoca?{" "}
-          <Link href={routes.getStarted} className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink">
-            Create Account
-          </Link>
-        </>
-      }
+      description="Continue with Google, or with the email address you signed up with."
     >
-      <SignInForm />
+      <AuthStatusNotice status={typeof status === "string" ? status : undefined} />
+      <SignInForm googleEnabled={googleConfigured()} next={safeNext} />
     </AuthShell>
   );
 }

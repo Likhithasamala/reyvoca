@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { ArrowRight, Bot, Plus } from "lucide-react";
 import { useAgents } from "@/lib/agents/store";
-import { ActionLink } from "./ui/action";
+import { ActionLink } from "@/components/panel/action";
 
 /**
  * The first thing a new workspace sees. "Start Free" now lands people straight

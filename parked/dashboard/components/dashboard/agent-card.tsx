@@ -4,7 +4,7 @@ import Link from "next/link";
 import { AudioLines, Bot, Globe, Trash2 } from "lucide-react";
 import type { Agent } from "@/lib/agents/store";
 import { templateById } from "@/lib/agents/templates";
-import { StatusBadge } from "./ui/status-badge";
+import { StatusBadge } from "@/components/panel/status-badge";
 
 /** Summary tile for one agent in the My Agents grid. */
 export function AgentCard({ agent, onDelete }: { agent: Agent; onDelete?: () => void }) {

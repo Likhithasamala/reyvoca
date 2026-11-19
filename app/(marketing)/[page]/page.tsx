@@ -34,6 +34,16 @@ export default async function InfoPage({ params }: PageProps<"/[page]">) {
           {page.body.map((paragraph) => (
             <p key={paragraph}>{paragraph}</p>
           ))}
+          {page.contactEmail && (
+            <p>
+              <a
+                href={`mailto:${page.contactEmail}`}
+                className="font-medium text-ink underline decoration-accent-strong/40 underline-offset-4 transition-[text-decoration-color] hover:decoration-accent-strong"
+              >
+                {page.contactEmail}
+              </a>
+            </p>
+          )}
         </div>
         <ButtonLink href="/" variant="secondary" className="mt-12">
           <ArrowLeft className="size-4" aria-hidden="true" />

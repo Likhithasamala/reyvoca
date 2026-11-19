@@ -12,7 +12,7 @@ import { Container } from "@/components/ui/container";
  */
 export function Industries() {
   return (
-    <section id={industriesSection.id} aria-labelledby="industries-heading" className="bg-surface py-28 lg:py-36">
+    <section id={industriesSection.id} aria-labelledby="industries-heading" className="bg-canvas py-28 lg:py-36">
       <Container>
         <div className="max-w-[52ch]">
           <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">
@@ -29,7 +29,7 @@ export function Industries() {
             <li key={industry.slug} className="min-w-0">
               <Link
                 href={`/industries/${industry.slug}`}
-                className="group flex h-full flex-col gap-2 rounded-2xl border border-line bg-canvas p-6 transition-colors hover:border-line-strong hover:bg-surface-muted/60"
+                className="group flex h-full flex-col gap-2 rounded-2xl border border-line bg-surface p-6 transition-colors hover:border-line-strong hover:bg-surface-muted/60"
               >
                 <h3 className="flex items-center gap-2 text-[1.0625rem] font-semibold text-ink">
                   {industry.name}

@@ -5,7 +5,7 @@ import { ArrowUpRight, ChevronsUpDown, LogIn, ShieldCheck, UserRound } from "luc
 import { cn } from "@/lib/cn";
 import { routes } from "@/config/site";
 import type { WorkspaceIdentity } from "@/types";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton } from "@/components/panel/sign-out-button";
 
 const menuItem =
   "flex w-full items-center gap-2 rounded-lg px-2 py-2 text-left text-[0.8125rem] text-ink-muted transition-colors hover:bg-surface-muted hover:text-ink disabled:opacity-60";

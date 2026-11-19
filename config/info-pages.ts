@@ -2,6 +2,7 @@
  * Simple informational pages linked from the footer. They are honest
  * placeholders until real content (and real legal text) exists.
  */
+import { siteConfig } from "@/config/site";
 import type { InfoPage } from "@/types";
 
 export const infoPages: InfoPage[] = [
@@ -20,8 +21,10 @@ export const infoPages: InfoPage[] = [
     description: "Talk to the Reyvoca team about your voice agent use case.",
     body: [
       "We're speaking with teams interested in early access and enterprise deployments.",
-      "A contact form is on the way. In the meantime, the docs describe what we're building and how the platform will work.",
+      "Email is the quickest way to reach us. Tell us what kind of calls you want handled and in which languages, and we'll come back to you.",
+      "A phone number and a contact form are on the way. In the meantime, the docs describe what we're building and how the platform will work.",
     ],
+    contactEmail: siteConfig.email,
   },
   {
     slug: "careers",

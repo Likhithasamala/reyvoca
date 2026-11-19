@@ -43,17 +43,17 @@ export const docPages: DocPage[] = [
     title: "Quickstart",
     description: "The end-to-end flow from a new workspace to a live voice agent.",
     blocks: [
-      { type: "p", text: "Once accounts open, getting your first agent live will follow four steps." },
+      { type: "p", text: "Getting your first agent live follows four steps, and we do them with you on the demo call." },
       {
         type: "list",
         items: [
-          "Create a workspace from the Get Started page.",
+          "We open your workspace and hand it over.",
           "Create an agent and describe its role, instructions and objective.",
           "Add knowledge so the agent can answer questions about your business.",
           "Test the agent in the browser, then connect a phone number to go live.",
         ],
       },
-      { type: "callout", text: "Workspace sign-up is not open yet. This guide will be updated with screenshots and examples at launch." },
+      { type: "callout", text: "Reyvoca is not self-serve: we build the first agent with you, then hand over the workspace. Book a demo to start." },
     ],
   },
   {

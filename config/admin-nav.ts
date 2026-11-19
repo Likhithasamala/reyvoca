@@ -6,7 +6,7 @@
  * provider stack behind every call. Access is checked on the server in
  * `app/admin/layout.tsx`; see `lib/server/admin.ts` for the rule.
  */
-import { IndianRupee, LayoutDashboard, Plug } from "lucide-react";
+import { IndianRupee, LayoutDashboard, Mail, Plug } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
 export type AdminNavItem = {
@@ -29,6 +29,12 @@ export const adminNavItems: AdminNavItem[] = [
     href: "/admin/providers",
     icon: Plug,
     desc: "API keys for language models, speech-to-text and text-to-speech.",
+  },
+  {
+    label: "Mailbox",
+    href: "/admin/mailbox",
+    icon: Mail,
+    desc: "Auth emails sent, and the links themselves while no provider is configured.",
   },
   {
     label: "Billing",

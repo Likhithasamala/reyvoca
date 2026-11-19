@@ -18,7 +18,11 @@ export type StoredUser = {
   /** Always stored lowercase; it is the unique key for an account. */
   email: string;
   workspace: string;
-  passwordHash: string;
+  /**
+   * Null for an account created through Google sign-in, which has no password
+   * of its own. Such an account can still gain one through the reset flow.
+   */
+  passwordHash: string | null;
   /**
    * "admin" accounts reach the operator panel at `/admin`, where the provider
    * stack is configured. Absent means an ordinary customer account; see
@@ -26,15 +30,119 @@ export type StoredUser = {
    * also grants it, without touching stored rows).
    */
   role?: "admin" | "user";
+  /**
+   * When the address was proven to belong to this person — by clicking the
+   * link we emailed, or by Google having verified it already. Null means the
+   * account exists but the address is unconfirmed, which the app nags about
+   * rather than blocks: see `lib/server/session.ts`.
+   */
+  emailVerifiedAt?: string | null;
+  /** Last time the password changed; shown in the account's security list. */
+  passwordChangedAt?: string;
+  /** Google's stable subject id, set once an account is linked to Google. */
+  googleId?: string;
+  /** Profile picture from Google, when there is one. */
+  avatarUrl?: string;
+  /** A suspended account keeps its data but cannot sign in. */
+  status?: "active" | "suspended";
   createdAt: string;
 };
 
 export type StoredSession = {
+  /** Opaque id for device management — safe to show, unlike the token hash. */
+  id: string;
   /** SHA-256 of the cookie token — the raw token is never persisted. */
   tokenHash: string;
   userId: string;
   createdAt: string;
   expiresAt: string;
+  /** Last request seen on this session, throttled to one write per 15 minutes. */
+  lastSeenAt?: string;
+  /** Raw User-Agent, so the account page can name the device. */
+  userAgent?: string;
+  /** Client IP as the proxy reported it. */
+  ip?: string;
+  /** True when "Keep me signed in" was ticked: a 30-day cookie, not a session one. */
+  remember?: boolean;
+};
+
+/** What a one-time emailed link is for. */
+export type TokenPurpose = "email_verify" | "password_reset" | "email_change";
+
+/**
+ * A single-use link we emailed. Only the SHA-256 of the token is stored, so
+ * the database alone can never be used to take over an account.
+ */
+export type StoredAuthToken = {
+  id: string;
+  userId: string;
+  purpose: TokenPurpose;
+  tokenHash: string;
+  /** The address being confirmed, for an email change. */
+  pendingEmail?: string;
+  expiresAt: string;
+  /** Set the moment it is redeemed; a used token is never accepted again. */
+  usedAt?: string;
+  createdAt: string;
+};
+
+/**
+ * One security-relevant thing that happened to an account, shown back to the
+ * owner on `/account` the way other services show "recent activity".
+ */
+export type StoredAuthEvent = {
+  id: string;
+  userId?: string;
+  /** Kept for failures, where there may be no account to point at. */
+  email?: string;
+  type:
+    | "signed_up"
+    | "signed_in"
+    | "sign_in_failed"
+    | "signed_out"
+    | "email_verified"
+    | "password_reset_requested"
+    | "password_reset"
+    | "password_changed"
+    | "email_change_requested"
+    | "email_changed"
+    | "sessions_revoked"
+    | "account_deleted"
+    | "google_linked";
+  ip?: string;
+  userAgent?: string;
+  at: string;
+};
+
+/**
+ * A rate-limit counter: how many times `key` was hit inside the current
+ * window. Used both for throttling (how many reset emails) and for lockout
+ * (how many failed sign-ins before the account pauses).
+ */
+export type StoredRateLimit = {
+  key: string;
+  count: number;
+  windowStartedAt: string;
+  /** Set when the key is in lockout; requests are refused until it passes. */
+  lockedUntil?: string;
+};
+
+/**
+ * A record of one email. Delivery goes through Resend when its key is set;
+ * with no provider configured the link is kept here so it can be clicked from
+ * the operator mailbox during development. Once Resend is configured the link
+ * is NOT stored — only that the mail went out.
+ */
+export type StoredMailLog = {
+  id: string;
+  to: string;
+  subject: string;
+  provider: "resend" | "dev";
+  status: "sent" | "failed";
+  /** Present in dev mode only: the link the email invites you to click. */
+  actionUrl?: string;
+  error?: string;
+  createdAt: string;
 };
 
 export type StoredCall = {
@@ -197,6 +305,10 @@ export type StoredDemoRequest = {
 export type Database = {
   users: StoredUser[];
   sessions: StoredSession[];
+  authTokens: StoredAuthToken[];
+  authEvents: StoredAuthEvent[];
+  rateLimits: StoredRateLimit[];
+  mailLog: StoredMailLog[];
   demoRequests: StoredDemoRequest[];
   calls: StoredCall[];
   agents: StoredAgent[];
@@ -219,6 +331,10 @@ const DATA_FILE = path.join(DATA_DIR, "reyvoca.json");
 const emptyDatabase = (): Database => ({
   users: [],
   sessions: [],
+  authTokens: [],
+  authEvents: [],
+  rateLimits: [],
+  mailLog: [],
   demoRequests: [],
   calls: [],
   agents: [],
@@ -250,6 +366,19 @@ async function load(): Promise<Database> {
     db.providerConfigs = db.providerConfigs.map((row) =>
       row.workspaceId === PLATFORM_WORKSPACE_ID ? row : { ...row, workspaceId: PLATFORM_WORKSPACE_ID },
     );
+
+    // Accounts written before email verification existed are grandfathered as
+    // verified: they were created when confirming an address was not asked of
+    // anyone, so treating them as unconfirmed would nag them for a step they
+    // were never offered. `null` is the real "not verified yet" value, and
+    // only sign-up writes it.
+    db.users = db.users.map((row) =>
+      row.emailVerifiedAt === undefined ? { ...row, emailVerifiedAt: row.createdAt } : row,
+    );
+
+    // Sessions predate device management, so they carry no id. One is minted
+    // here rather than dropping the row, which would sign people out.
+    db.sessions = db.sessions.map((row) => (row.id ? row : { ...row, id: randomUUID() }));
 
     return db;
   } catch {

@@ -126,6 +126,13 @@ export type AccountSummary = {
   workspace: string;
   /** One or two letters for the avatar. */
   initials: string;
+  /**
+   * False until the address has been confirmed by clicking the emailed link.
+   * The app nags rather than blocks, so this drives a banner, not a wall.
+   */
+  emailVerified: boolean;
+  /** Google profile picture, for accounts that signed in with Google. */
+  avatarUrl?: string;
 };
 
 /** Which way a call went. Shared by the dashboard tables. */
@@ -201,4 +208,10 @@ export type InfoPage = {
   title: string;
   description: string;
   body: string[];
+  /**
+   * Renders a labelled mailto after the body. Set on the pages where writing
+   * to us is the point — a page that says "get in touch" without giving an
+   * address is a dead end.
+   */
+  contactEmail?: string;
 };

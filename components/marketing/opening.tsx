@@ -66,9 +66,9 @@ export function Opening() {
           transition={{ duration: 0.8, delay: 0.55, ease: EASE }}
           className="flex flex-col items-center"
         >
-          <p className="mt-7 max-w-[46ch] text-[1.0625rem] leading-relaxed text-ink sm:text-[1.125rem]">
-            They ask at nine in the evening. Reyvoca rings back within seconds, holds a real conversation, and files
-            the lead — qualified, scored and booked in — while your team gets on with the work.
+          <p className="mt-7 max-w-[44ch] text-[1.0625rem] leading-relaxed text-ink sm:text-[1.125rem]">
+            An enquiry lands at nine at night. Your AI voice agent calls back in seconds, qualifies it in their
+            language, and books the next step before morning.
           </p>
 
           <div className="mt-9 flex flex-wrap items-center justify-center gap-3">
@@ -79,16 +79,23 @@ export function Opening() {
               Book a demo
             </Link>
             <Link
-              href="#lights"
+              href={routes.howItWorks}
               className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-accent-wash px-6 text-[1rem] font-semibold text-accent-strong transition-colors hover:bg-accent-soft"
             >
-              See what changes
+              How it works
               <ArrowDown className="size-4" aria-hidden="true" />
             </Link>
           </div>
 
-          <p className="mt-7 text-[1rem] text-ink-subtle">
-            In development. We build your agent for you and hand it over — you never configure one yourself.
+          <p className="mt-7 text-[1rem] text-ink-muted">
+            We build the first agent with you on the call.{" "}
+            <Link
+              href={routes.signIn}
+              className="font-medium text-ink underline decoration-line-strong underline-offset-4 transition-colors hover:decoration-ink"
+            >
+              Already with us? Sign in
+            </Link>
+            .
           </p>
         </motion.div>
       </div>
@@ -100,7 +107,7 @@ export function Opening() {
 function MaskedLine({ text, delay }: { text: string; delay: number }) {
   const reduced = useReduced();
   return (
-    <span className="inline-block overflow-hidden pb-[0.1em] -mb-[0.1em] align-baseline">
+    <span className="inline-block overflow-hidden pt-[0.14em] -mt-[0.14em] pb-[0.1em] -mb-[0.1em] align-baseline">
       <motion.span
         className="block"
         initial={reduced ? false : { y: "110%" }}
@@ -122,7 +129,7 @@ function RotatingCaller({ word, reduced }: { word: string; reduced: boolean }) {
     <motion.span
       layout={!reduced}
       transition={{ duration: 0.5, ease: EASE }}
-      className="relative inline-flex overflow-hidden pb-[0.1em] -mb-[0.1em] text-accent"
+      className="relative inline-flex overflow-hidden pt-[0.14em] -mt-[0.14em] pb-[0.1em] -mb-[0.1em] text-accent"
     >
       <AnimatePresence mode="popLayout" initial={false}>
         <motion.span

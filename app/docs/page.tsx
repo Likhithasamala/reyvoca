@@ -7,7 +7,8 @@ import { pageMetadata } from "@/lib/metadata";
 
 export const metadata = pageMetadata({
   title: "Docs",
-  description: "Documentation for building AI voice agents with Reyvoca.",
+  description:
+    "Reyvoca docs: build, train and deploy an AI voice agent, connect a phone number, set the languages a call can switch to, and read the call API reference.",
   path: routes.docs,
 });
 

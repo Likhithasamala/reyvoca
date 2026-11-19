@@ -1,0 +1,487 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Reyvoca design tokens — "Ink & Ember"
+
+   Ink    — warm near-black. The primary brand colour: CTAs, headings,
+            filled UI states. Trust comes from contrast, not hue.
+   Ember  — a single vermilion signal accent, used sparingly (~5%) for
+            what is *live*: the on-air dot, waveforms, active steps,
+            the headline highlight. Never a large fill.
+   Paper  — warm off-white neutrals. Still the ground of most pages, but
+            no longer ~80% of the homepage: How it works, Industries and
+            Languages sit on the ember ramp (`.ember-ground`) alongside the
+            closing scene and the footer, so the home page runs warm-dark
+            from <Lights/> to the last line of the footer.
+
+   Components reference these semantic names only — never raw hex.
+   Ratio target, paper pages: ~80% neutral · ~15% ink · ~5% ember.
+   On an ember ground the ember *is* the neutral, and the contrast budget
+   moves into that ground's own token block — see the notes above
+   `.ember-ground` and `.footer-ground` for the cases each is checked
+   against.
+------------------------------------------------------------------- */
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; /* taste-skill-ignore: IDs and code in the app only */
+
+  /* Brand primary (Ink) — CTAs and filled brand elements */
+  --color-brand: #1a1714;
+  --color-brand-hover: #3a342e;
+
+  /* Accent (Ember) — signal colour, used intentionally */
+  --color-accent: #e4501c; /* graphics & large text only (3.7:1) */
+  --color-accent-strong: #b23c10; /* small text, icons, focus ring (5.7:1) */
+  --color-accent-soft: #f6d5c5; /* tinted borders */
+  --color-accent-wash: #fdf1ea; /* tinted backgrounds */
+  --color-accent-glow: #f2895c; /* accent on dark surfaces (7.5:1) */
+
+  /* Ember shading scale — the surface wash only, light → thick. Type and UI
+     keep --color-accent / --color-accent-strong, which are contrast-checked;
+     these are for the grounds the page is lit by. */
+  --color-ember-light: #ffc9a3;
+  --color-ember: #ff9a5c;
+  --color-ember-hot: #ff7a2e;
+  --color-ember-deep: #ff5b14;
+
+  /* Backgrounds */
+  --color-canvas: #fbfaf8; /* bg-primary: page background */
+  --color-cream: #f6f0e4; /* the opening's warm ground — black type, ember accent */
+  --color-surface-muted: #f3f1ed; /* bg-secondary: alternate sections, muted fills */
+  --color-surface: #ffffff; /* bg-elevated: cards, inputs, product UI */
+
+  /* Text */
+  --color-ink: #1a1714; /* text-primary (17:1) */
+  --color-ink-muted: #57514a; /* text-secondary (7.5:1) */
+  --color-ink-subtle: #6b645b; /* text-muted (5.2:1 minimum) */
+
+  /* Borders */
+  --color-line: #e6e1da;
+  --color-line-strong: #cfc8bd;
+
+  /* Dark surface (Night) — product showcase, closing CTA, auth panel, code */
+  --color-night: #161310;
+  --color-night-raised: #221e1a;
+  --color-night-line: #3b352f;
+  --color-night-text: #d6d0c7; /* 12:1 */
+  --color-night-muted: #a39b91; /* 6.8:1 */
+
+  /* Semantic (reserved — always paired with a label, never decorative) */
+  --color-success: #1d7a4c;
+  --color-success-soft: #e9f4ee;
+  --color-success-line: #bfdfcc;
+  --color-warning: #94570a;
+  --color-warning-soft: #fcf3e1;
+  --color-warning-line: #ebd3a4;
+  --color-danger: #b42323;
+  --color-danger-soft: #fdedec;
+  --color-danger-line: #f2c4c1;
+
+  /* Focus */
+  --color-focus: #b23c10;
+
+  /* Type scale (fluid, clamps keep mobile headings sane) */
+  --text-display: clamp(2.5rem, 1.55rem + 3.4vw, 4.5rem);
+  --text-display--line-height: 1.04;
+  --text-display--letter-spacing: -0.038em;
+  --text-h2: clamp(2rem, 1.45rem + 2vw, 3.25rem);
+  --text-h2--line-height: 1.08;
+  --text-h2--letter-spacing: -0.03em;
+  --text-h3: clamp(1.5rem, 1.25rem + 0.9vw, 2.125rem);
+  --text-h3--line-height: 1.15;
+  --text-h3--letter-spacing: -0.022em;
+  --text-lead: clamp(1.0625rem, 1rem + 0.3vw, 1.25rem);
+  --text-lead--line-height: 1.6;
+
+  /* Elevation — warm ink-tinted, kept soft */
+  --shadow-card: 0 1px 2px rgb(26 23 20 / 0.04), 0 4px 14px -4px rgb(26 23 20 / 0.06);
+  --shadow-lift: 0 1px 3px rgb(26 23 20 / 0.05), 0 16px 36px -14px rgb(26 23 20 / 0.16);
+  --shadow-float: 0 1px 2px rgb(26 23 20 / 0.05), 0 32px 64px -24px rgb(26 23 20 / 0.28);
+  --shadow-cta: 0 1px 2px rgb(26 23 20 / 0.2), inset 0 1px 0 rgb(255 255 255 / 0.1);
+  --shadow-cta-hover: 0 8px 20px -8px rgb(26 23 20 / 0.45);
+  --shadow-highlight: 0 24px 56px -28px rgb(26 23 20 / 0.35);
+  --shadow-showcase: 0 40px 110px -40px rgb(228 80 28 / 0.35);
+
+  --animate-wave: wave 1.1s ease-in-out infinite;
+  --animate-ping-soft: ping-soft 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  --animate-fade-in: fade-in 0.4s ease-out both;
+  --animate-dot: dot 1.2s ease-in-out infinite;
+
+  @keyframes wave {
+    0%, 100% { transform: scaleY(0.35); }
+    50% { transform: scaleY(1); }
+  }
+  @keyframes ping-soft {
+    0% { transform: scale(1); opacity: 0.55; }
+    80%, 100% { transform: scale(2.1); opacity: 0; }
+  }
+  @keyframes fade-in {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes dot {
+    0%, 80%, 100% { opacity: 0.25; transform: translateY(0); }
+    40% { opacity: 1; transform: translateY(-2px); }
+  }
+}
+
+@layer base {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
+    /* Equal outer margins: reserve the scrollbar's width on both edges */
+    scrollbar-gutter: stable both-edges;
+  }
+
+  body {
+    background: var(--color-canvas);
+    color: var(--color-ink);
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  /* Anchored sections clear the sticky navbar */
+  [id] {
+    scroll-margin-top: 5.5rem;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-focus);
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Conversation stage — the homepage hero.
+
+   The room behind the type is a canvas, not a photograph: two lights,
+   one per voice, driven by the call's own timeline. All this layer
+   adds is a little grain, so the composite never reads as flat CSS.
+------------------------------------------------------------------- */
+.stage-grain {
+  opacity: 0.2;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
+}
+
+/* ------------------------------------------------------------------
+   The opening — a flat cream ground. The claim is set in full ink on
+   it, with ember on the one word that changes; no gradient, because
+   the contrast is doing the work.
+------------------------------------------------------------------- */
+.opening {
+  background-color: var(--color-cream);
+  /* Not a flat ground, and not a band either: the cream simply warms as it
+     falls, so the page carries one continuous shade instead of arriving at
+     an edge. It hands off to .lights-ground at exactly the same colour. */
+  background-image:
+    /* Thick — the saturated core, low and central. */
+    radial-gradient(44% 26% at 50% 118%, #ff5b1459, #ff5b1400 70%),
+    /* Medium — the body of the warmth. */
+    radial-gradient(68% 40% at 50% 122%, #ff7a2e54, #ff7a2e00 72%),
+    /* Light — the wide halo that reaches the edges. */
+    radial-gradient(100% 58% at 50% 126%, #ffc9a366, #ffc9a300 74%),
+    linear-gradient(to bottom, #f6f0e4 0%, #fae7d4 54%, var(--color-ember-light) 100%);
+}
+
+/* Paper tooth, not film grain: barely there, and dark rather than light. */
+.opening-grain {
+  opacity: 0.055;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.82' numOctaves='3'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.55'/></svg>");
+}
+
+/* ------------------------------------------------------------------
+   The ember seam — where the opening burns down into the night.
+
+   The cream of the opening does not stop at a hard line; it heats
+   through ember into ink over a fixed band, so the lit room below
+   arrives out of the dark rather than off a seam. Fixed heights, not
+   percentages, so the burn reads the same at every viewport.
+------------------------------------------------------------------- */
+.lights-ground {
+  /* No band and no night. The section picks the hero's ground up at exactly
+     the colour it left off, carries one ember shade behind the picture, and
+     settles back to paper before the next section — so the page reads as a
+     single sheet rather than a cream panel meeting a black one. The picture
+     itself is still dark, because it is a print, not the page. */
+  padding-top: clamp(3.5rem, 7vw, 6rem);
+  background-color: var(--color-canvas);
+  background-image:
+    /* The shade is built in three tones rather than one tint — that grading
+       is what makes it read as light falling on paper instead of a flat
+       orange fill. Thick in the middle, medium through the body, light out
+       to the edges, each one wider and fainter than the last. */
+    radial-gradient(44% 30% at 50% 26%, #ff5b148c, #ff5b1400 71%),
+    radial-gradient(74% 46% at 50% 27%, #ff7a2e7a, #ff7a2e00 73%),
+    radial-gradient(106% 66% at 50% 24%, #ffc9a380, #ffc9a300 76%),
+    /* The ground: it arrives at the hero's own last colour, peaks hot behind
+       the picture, then lets go back to paper for the section below. */
+    linear-gradient(
+      to bottom,
+      var(--color-ember-light) 0%,
+      #ffa869 14%,
+      var(--color-ember-hot) 28%,
+      #ffa871 46%,
+      #fcd3b2 66%,
+      #fbeee4 86%,
+      var(--color-canvas) 100%
+    );
+}
+
+/* And settles at the foot of the section — a last warm breath back to
+   paper, so the next section starts from the same sheet. */
+.lights-close {
+  background: linear-gradient(to bottom, rgb(251 250 248 / 0) 0%, var(--color-canvas) 100%);
+}
+
+/* ------------------------------------------------------------------
+   The warm middle — the three sections under the hero.
+
+   The opening burns cream → ember → ink and then the page used to go
+   white and stay white for the rest of its length. These grounds carry
+   the same sheet downward instead: paper that has caught a little of
+   the heat where the call is explained, the hero's own cream where the
+   trades are listed, and ink where the languages are — that being the
+   one place the agent is shown holding a live line, so the one place
+   the page is actually lit.
+
+   Every value is a token or a wash of --color-ember-*; ember stays a
+   light falling on paper, never a fill.
+------------------------------------------------------------------- */
+
+/* "How it works" — paper, warmed as it falls. Cool at the top where it
+   takes over from .lights-close, cream by the foot so the industries
+   list starts from the colour this one ended on. The single bloom sits
+   behind the sticky stage, which is the only thing on the right. */
+.anatomy-ground {
+  background-color: var(--color-canvas);
+  background-image:
+    radial-gradient(44% 36% at 76% 32%, #ff7a2e14, #ff7a2e00 72%),
+    linear-gradient(to bottom, var(--color-canvas) 0%, #fdf9f3 44%, var(--color-cream) 100%);
+}
+
+/* Industries — the cream the claim itself is set on, lifted to white at
+   the top edge so the cards read as objects laid on paper rather than
+   panels cut out of it. */
+.industries-ground {
+  background-color: var(--color-cream);
+  background-image:
+    radial-gradient(64% 40% at 50% -4%, #fffdfa8f, #fffdfa00 70%),
+    radial-gradient(40% 32% at 88% 104%, #ff7a2e17, #ff7a2e00 72%);
+}
+
+/* Languages — the switchboard. Ink, with one ember bloom low and left:
+   the lamp the live line is lit by. Scripts are set in cream on it and
+   only the language currently holding the call is ember. */
+.switchboard-ground {
+  background-color: var(--color-night);
+  background-image:
+    radial-gradient(38% 44% at 20% 88%, #ff5b143d, #ff5b1400 70%),
+    radial-gradient(70% 58% at 28% 94%, #ff7a2e26, #ff7a2e00 74%),
+    linear-gradient(to bottom, #120f0c 0%, var(--color-night) 44%, #1b1611 100%);
+}
+
+/* The two seams around it, so the ink arrives out of the paper and goes
+   back to it rather than meeting it at an edge. */
+.switchboard-in {
+  background: linear-gradient(to bottom, var(--color-cream) 0%, #120f0c 100%);
+}
+.switchboard-out {
+  background: linear-gradient(to bottom, #1b1611 0%, var(--color-cream) 100%);
+}
+
+/* The questions keep the cream, then hand off to the ivory the closing
+   scene opens on. */
+.faq-ground {
+  background: linear-gradient(to bottom, var(--color-cream) 0%, var(--color-cream) 62%, #f8f7f2 100%);
+}
+
+/* The framed scene: a paper mount around a dark picture, as a gallery
+   frame holds a print. */
+.scene-frame {
+  background: #ffffff;
+}
+
+/* Every part of the drawn office eases between its two states, so the
+   switch reads as one movement rather than two pictures swapping. */
+.scene-part {
+  transition:
+    transform 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 760ms cubic-bezier(0.16, 1, 0.3, 1),
+    fill 760ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Scroll reveal — pure CSS, no JS. Browsers without scroll-driven
+   animations simply show content immediately. */
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 0% entry 30%;
+  }
+}
+
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ------------------------------------------------------------------
+   The ember section ground — one ramp, continued across sections.
+
+   Same correction as the footer below: every stop is held at hue 17-20deg,
+   the hue of the closing scene's orange (#e94709), and saturation stays
+   near the top of the range. A dark orange that drifts to hue 26deg reads
+   brown, and one that loses saturation reads maroon.
+
+   What is different here is that the ramp does not restart per section.
+   How it works, Industries and Languages each take the *next* slice of one
+   ramp and set it with `[--ember-from:...]` / `[--ember-to:...]`:
+
+     How it works   #160e09 -> #3d1505
+     Industries     #3d1505 -> #5e2006
+     Languages      #5e2006 -> #822b06
+
+   Each starts on the colour the one above ended on, so three consecutive
+   dark sections read as one surface warming downward rather than three
+   panels with a step at every boundary. It opens at #160e09 because the
+   section above it (<Lights/>) is already that dark.
+
+   It stops at #822b06, well short of the footer's #bf3e06, because these
+   sections put cards on the ground and the footer does not. Card glass
+   (--color-surface, 8% white) lightens whatever is behind it, so the
+   binding contrast case is small text on a card at the bottom of the
+   brightest slice:
+
+     on the ground at #822b06      on card glass over it
+       --color-ink        9.0:1      --color-ink        7.3:1
+       --color-ink-subtle 8.0:1      --color-ink-subtle 6.5:1
+
+   Two token choices worth keeping:
+
+   `--color-accent-strong` becomes ember-light, not accent-glow. It is the
+   small-text accent — the 11px speaker label in the call transcript — and
+   accent-glow on card glass over #822b06 measures 3.1:1. ember-light holds
+   5.1:1 there.
+
+   `--color-brand` stays dark, as night rather than ink. It is a filled
+   element paired with `text-white` (the caller's chat bubble), so flipping
+   it light would strand the white type on it. Against this ground a
+   near-black bubble still reads as the darker of the pair.
+------------------------------------------------------------------- */
+.ember-ground {
+  --ember-from: #160e09;
+  --ember-to: #822b06;
+  --color-canvas: #ffffff14;
+  --color-surface: #ffffff14;
+  --color-surface-muted: #ffffff0f;
+  --color-brand: var(--color-night);
+  --color-ink: #fffaf4;
+  --color-ink-muted: #fff2ea;
+  --color-ink-subtle: #ffeadd;
+  --color-line: #ffffff33;
+  --color-line-strong: #ffffff4d;
+  --color-accent: var(--color-accent-glow);
+  --color-accent-strong: var(--color-ember-light);
+  background-color: var(--ember-from);
+  background-image: linear-gradient(to bottom, var(--ember-from), var(--ember-to));
+}
+
+/* ------------------------------------------------------------------
+   The footer's ember — the night, burning down into the scene's orange.
+
+   One ground on every page. It opens at the exact dark the closing scene
+   ends on (#160e09) so there is no seam where the two meet — the footer is
+   the bottom of that scene rather than a panel parked under it — and warms
+   the whole way down, finishing on #e94709, the scene's own orange.
+
+   Every stop is held at hue 17-19deg, that orange's hue. This is the whole
+   correction over the ground it replaced, which sat at hue 26deg and so
+   read brown however much ember was layered over it. Saturation stays near
+   the top of its range at every stop: a dark orange that loses saturation
+   is indistinguishable from maroon.
+
+   Where the last stop lands is an accessibility constraint, not a taste
+   one. Measured against this type there is a dead band around #d64307 that
+   nothing can sit on — ivory falls to 4.3:1 and black only reaches 4.2:1,
+   so neither passes AA:
+
+     stop       ivory   black        stop       ivory   black
+     #ad3906     6.3     2.9         #d64307     4.3     4.2   <- dead
+     #c24006     5.0     3.6         #e94709     3.8     4.8
+
+   So the ramp holds at #c24006 for the whole text column and crosses that
+   band only below the last line, inside the footer's bottom padding. That
+   stop is pinned in rem from the bottom rather than in %, because a % stop
+   tracks the footer's height: the footer is far taller stacked on mobile,
+   and a percentage that clears the copyright line on desktop would cut
+   straight through it there.
+
+   At #c24006, the hottest point any type sits on:
+     --color-ink 5.0:1   --color-ink-muted 4.9:1   --color-ink-subtle 4.7:1
+
+   Tokens are redefined here rather than per element, so the mark, the
+   column titles, the links, their hover states and the divider all follow
+   from these few lines.
+------------------------------------------------------------------- */
+.footer-ground {
+  --footer-base: #160e09;
+  --color-surface: var(--footer-base);
+  --color-ink: #fffaf4;
+  --color-ink-muted: #fff6f0;
+  --color-ink-subtle: #fff0e6;
+  --color-line: #ffffff33;
+  --color-accent: var(--color-accent-glow);
+  background-color: var(--footer-base);
+  background-image:
+    linear-gradient(
+      to bottom,
+      #160e09 0%,
+      #2a1105 12%,
+      #581d05 30%,
+      #8a2d06 52%,
+      #ad3906 74%,
+      /* held here for the whole text column … */
+      #c24006 calc(100% - 1.5rem),
+      /* … then the scene's orange, clear of the last line */
+      #e94709 100%
+    );
+}
+
+/* Smooth accordion open/close for native <details> */
+details.faq-item::details-content {
+  block-size: 0;
+  overflow: clip;
+  transition: block-size 0.25s ease, content-visibility 0.25s allow-discrete;
+}
+details.faq-item[open]::details-content {
+  block-size: auto;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  ::before,
+  ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal {
+    animation: none !important;
+  }
+}

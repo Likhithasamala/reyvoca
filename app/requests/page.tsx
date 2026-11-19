@@ -1,4 +1,5 @@
-import { Mail, Phone } from "lucide-react";
+import { CircleAlert, Mail, Phone, UserRound } from "lucide-react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { routes } from "@/config/site";
 import { SignOutButton } from "@/components/panel/sign-out-button";
@@ -6,7 +7,9 @@ import { Logo } from "@/components/ui/logo";
 import { read } from "@/lib/server/db";
 import { getSessionUser } from "@/lib/server/session";
 
-export const metadata = { title: "Demo requests" };
+// A signed-in list of real people's names and phone numbers. It must never be
+// indexed; robots.ts disallows it too, so a crawler never requests it at all.
+export const metadata = { title: "Demo requests", robots: { index: false, follow: false } };
 
 /** Enquiries are read per request; a cached page would hide new ones. */
 export const dynamic = "force-dynamic";
@@ -33,13 +36,41 @@ export default async function RequestsPage() {
     <div className="min-h-dvh bg-surface-muted">
       <header className="flex items-center justify-between gap-4 px-5 py-4 sm:px-8">
         <Logo href={routes.home} />
-        <div className="flex items-center gap-4">
-          <span className="hidden text-sm text-ink-muted sm:inline">{user.email}</span>
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href={routes.account}
+            className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-muted transition-colors hover:bg-line/60 hover:text-ink"
+          >
+            <UserRound className="size-4" aria-hidden="true" />
+            <span className="hidden sm:inline">{user.email}</span>
+            <span className="sm:hidden">Account</span>
+          </Link>
           <SignOutButton className="inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium text-ink-muted transition-colors hover:bg-line/60 hover:text-ink" />
         </div>
       </header>
 
       <main id="main" className="mx-auto max-w-5xl px-5 pb-16 sm:px-8">
+        {/* Unconfirmed addresses are nudged here rather than blocked: the
+            account works, but the one thing that needs doing stays visible. */}
+        {!user.emailVerified && (
+          <div
+            role="status"
+            className="mb-5 flex flex-wrap items-center gap-3 rounded-2xl border border-warning-line bg-warning-soft px-4 py-3.5 text-sm text-warning"
+          >
+            <CircleAlert className="size-4 shrink-0" aria-hidden="true" />
+            <p className="flex-1">
+              Confirm <strong className="font-semibold">{user.email}</strong> so we can reach you
+              about your workspace.
+            </p>
+            <Link
+              href={routes.verifyEmail}
+              className="font-semibold underline underline-offset-4 hover:no-underline"
+            >
+              Send the link
+            </Link>
+          </div>
+        )}
+
         <div className="rounded-2xl border border-line bg-surface p-5 sm:p-8">
           <div className="flex flex-wrap items-baseline justify-between gap-3">
             <h1 className="text-2xl font-semibold text-ink">Demo requests</h1>

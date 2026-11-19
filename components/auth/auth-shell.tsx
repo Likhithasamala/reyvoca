@@ -40,7 +40,7 @@ export function AuthShell({ title, description, children, footer }: AuthShellPro
           </ul>
         </div>
 
-        <p className="text-sm text-night-muted">Reyvoca is in early development. Accounts open soon.</p>
+        <p className="text-sm text-night-muted">Free to create an account. Pricing is quoted per minute once we know your volume.</p>
       </aside>
 
       <main id="main" className="flex flex-col bg-canvas px-5 py-8 sm:px-8 lg:px-12">

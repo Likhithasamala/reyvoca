@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "typecheck": "next typegen && tsc --noEmit"
+    "typecheck": "next typegen && tsc --noEmit",
+    "seo": "node scripts/seo-check.mjs",
+    "seo:live": "node scripts/seo-check.mjs --live"
   },
   "dependencies": {
     "lucide-react": "^1.50.0",

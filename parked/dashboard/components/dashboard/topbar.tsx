@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { WorkspaceIdentity } from "@/types";
 import { routes } from "@/config/site";
 import { GlobalSearch } from "./global-search";
-import { SignOutButton } from "./sign-out-button";
+import { SignOutButton } from "@/components/panel/sign-out-button";
 
 const menuPanel =
   "absolute right-0 z-40 mt-2 w-64 rounded-xl border border-line bg-surface p-2 shadow-lift";

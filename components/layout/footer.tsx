@@ -1,35 +1,88 @@
 import Link from "next/link";
-import { routes, siteConfig } from "@/config/site";
+import { footerColumns, routes, siteConfig } from "@/config/site";
 import { Container } from "@/components/ui/container";
-
-const footerLinks = [
-  { label: "Docs", href: routes.docs },
-  { label: "Contact", href: routes.contact },
-  { label: "Terms", href: routes.terms },
-];
+import { Logo } from "@/components/ui/logo";
 
 /**
- * A single quiet line after a long stretch of ground: what this is, a few
- * links, the year and privacy. No block, no rule, no columns.
+ * The site footer: the mark and the one way to reach us on the left, then
+ * three columns of hub links — product, solutions, company. The hubs reach
+ * the rest (see the note on `footerColumns` in config/site.ts), so this stays
+ * short enough not to outweigh the page above it.
+ *
+ * It is deliberately a plain server component — a list of links needs no
+ * JavaScript — and the columns come from config/site.ts so the navigation and
+ * the markup stay one thing.
+ *
+ * The ground is one ember surface on every page — see `.footer-ground` in
+ * app/globals.css, which also redefines the ink tokens the markup below
+ * resolves through. Nothing here needs to know which page it is under.
  */
 export function Footer() {
   return (
-    <footer className="bg-surface pt-20 pb-7">
-      <Container className="grid grid-cols-1 gap-2 text-sm sm:grid-cols-[1fr_auto_1fr] sm:items-baseline">
-        <p className="text-ink-subtle">{siteConfig.name} · AI voice agents</p>
-        <nav aria-label="Footer" className="flex flex-wrap gap-6 sm:justify-center">
-          {footerLinks.map((link) => (
-            <Link key={link.label} href={link.href} className="font-medium text-ink transition-colors hover:text-ink-muted">
-              {link.label}
+    <footer className="footer-ground pt-14 pb-8 lg:pt-16">
+      <Container>
+        <div className="grid gap-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)] lg:gap-12">
+          <div>
+            {/* The paper lockup: ink bars, ember centre, ink wordmark. The footer
+                ground is cream, so this is the light half of the identity — not
+                `inverse`, which is the white-on-black half. */}
+            <Logo />
+            <p className="mt-5 text-[0.9375rem] text-ink-muted">
+              <a
+                href={`mailto:${siteConfig.email}`}
+                className="underline decoration-current/30 underline-offset-4 transition-[text-decoration-color] hover:decoration-current"
+              >
+                {siteConfig.email}
+              </a>
+            </p>
+            <p className="mt-2 max-w-[34ch] text-[0.9375rem] text-ink-subtle">
+              AI voice agents that answer, qualify and book your inbound calls.
+            </p>
+          </div>
+
+          <nav aria-label="Footer" className="grid grid-cols-2 gap-x-8 gap-y-8 sm:grid-cols-3">
+            {footerColumns.map((column) => {
+              // The group title names the list for a screen reader without
+              // adding a heading: an <h2> per column in the footer of every page would
+              // compete with the one heading each page is actually about.
+              const titleId = `footer-${column.title.toLowerCase().replace(/[^a-z]+/g, "-")}`;
+              return (
+                <div key={column.title}>
+                  <p id={titleId} className="text-sm font-semibold text-ink">
+                    {column.title}
+                  </p>
+                  <ul aria-labelledby={titleId} className="mt-4 space-y-2.5">
+                    {column.links.map((link) => (
+                      <li key={`${column.title}-${link.label}`}>
+                        <Link
+                          href={link.href}
+                          className="text-[0.9375rem] text-ink-muted transition-colors hover:text-ink"
+                        >
+                          {link.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              );
+            })}
+          </nav>
+        </div>
+
+        <div className="mt-12 flex flex-col gap-2 border-t border-line pt-6 text-sm sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-ink-subtle">
+            © {siteConfig.copyrightYear} {siteConfig.name} · AI voice agents
+          </p>
+          <p className="text-ink-subtle">
+            <Link href={routes.privacy} className="font-medium text-ink transition-colors hover:text-ink-muted">
+              Privacy
             </Link>
-          ))}
-        </nav>
-        <p className="text-ink-subtle sm:text-right">
-          © {siteConfig.copyrightYear} ·{" "}
-          <Link href={routes.privacy} className="font-medium text-ink transition-colors hover:text-ink-muted">
-            Privacy
-          </Link>
-        </p>
+            {" · "}
+            <Link href={routes.terms} className="font-medium text-ink transition-colors hover:text-ink-muted">
+              Terms
+            </Link>
+          </p>
+        </div>
       </Container>
     </footer>
   );

@@ -1,11 +1,27 @@
-import type { AuthErrorCode, AuthResult, AuthService } from "./types";
+import type {
+  AccountPayload,
+  AuthErrorCode,
+  AuthResult,
+  AuthService,
+  DeleteAccountInput,
+  EmailChangeInput,
+  PasswordChangeInput,
+  PasswordResetConfirmInput,
+  PasswordResetInput,
+  ProfileInput,
+  SessionDeviceView,
+  SignInInput,
+  SignUpInput,
+} from "./types";
 
-const NOT_CONFIGURED: AuthResult = {
+const NOT_CONFIGURED: AuthFailureResult = {
   ok: false,
   code: "not_configured",
   message:
-    "Reyvoca accounts aren't open yet. Authentication will be enabled once the platform backend is live.",
+    "Reyvoca accounts aren't reachable: NEXT_PUBLIC_API_URL is not set, so there is no backend to talk to.",
 };
+
+type AuthFailureResult = Extract<AuthResult, { ok: false }>;
 
 /**
  * Fallback when NEXT_PUBLIC_API_URL is unset: no backend to talk to, so every
@@ -14,25 +30,44 @@ const NOT_CONFIGURED: AuthResult = {
 const unconfiguredAuthService: AuthService = {
   signIn: async () => NOT_CONFIGURED,
   signUp: async () => NOT_CONFIGURED,
-  requestPasswordReset: async () => NOT_CONFIGURED,
   signOut: async () => NOT_CONFIGURED,
+  requestPasswordReset: async () => NOT_CONFIGURED,
+  confirmPasswordReset: async () => NOT_CONFIGURED,
+  changePassword: async () => NOT_CONFIGURED,
+  resendVerification: async () => NOT_CONFIGURED,
+  updateProfile: async () => NOT_CONFIGURED,
+  requestEmailChange: async () => NOT_CONFIGURED,
+  confirmEmailChange: async () => NOT_CONFIGURED,
+  listSessions: async () => NOT_CONFIGURED,
+  revokeSessions: async () => NOT_CONFIGURED,
+  deleteAccount: async () => NOT_CONFIGURED,
 };
 
 /** Error codes the API may return that map straight onto an AuthErrorCode. */
-const PASSTHROUGH_CODES = new Set<string>(["invalid_credentials", "email_taken", "validation_error"]);
+const PASSTHROUGH_CODES = new Set<string>([
+  "invalid_credentials",
+  "email_taken",
+  "validation_error",
+  "unauthorized",
+  "forbidden",
+]);
 
 /** Adapter for the Reyvoca API (see `app/api/auth/*` for the local backend). */
 function createHttpAuthService(baseUrl: string): AuthService {
-  async function post(path: string, body?: unknown): Promise<AuthResult> {
+  async function send<T>(
+    path: string,
+    method: "POST" | "PATCH" | "DELETE" | "GET",
+    body?: unknown,
+  ): Promise<AuthResult<T>> {
     let response: Response;
     try {
       response = await fetch(`${baseUrl}${path}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
+        method,
+        headers: body === undefined ? undefined : { "Content-Type": "application/json" },
         // Same-origin by default, but kept explicit so the session cookie is
         // still sent if the API is ever hosted on another origin.
         credentials: "include",
-        body: JSON.stringify(body ?? {}),
+        body: body === undefined ? undefined : JSON.stringify(body),
       });
     } catch {
       return {
@@ -43,11 +78,11 @@ function createHttpAuthService(baseUrl: string): AuthService {
     }
 
     const payload = (await response.json().catch(() => null)) as
-      | { code?: string; message?: string; redirectTo?: string }
+      | ({ code?: string; message?: string; redirectTo?: string } & Record<string, unknown>)
       | null;
 
     if (response.ok) {
-      return { ok: true, redirectTo: payload?.redirectTo };
+      return { ok: true, redirectTo: payload?.redirectTo, data: (payload ?? undefined) as T };
     }
 
     // Prefer the server's own code and message so validation and conflict
@@ -57,7 +92,9 @@ function createHttpAuthService(baseUrl: string): AuthService {
         ? (payload.code as AuthErrorCode)
         : response.status === 401
           ? "invalid_credentials"
-          : "unknown";
+          : response.status === 429
+            ? "validation_error"
+            : "unknown";
 
     return {
       ok: false,
@@ -67,10 +104,25 @@ function createHttpAuthService(baseUrl: string): AuthService {
   }
 
   return {
-    signIn: (input) => post("/auth/sign-in", input),
-    signUp: (input) => post("/auth/sign-up", input),
-    requestPasswordReset: (input) => post("/auth/password-reset", input),
-    signOut: () => post("/auth/sign-out"),
+    signIn: (input: SignInInput) => send<AccountPayload>("/auth/sign-in", "POST", input),
+    signUp: (input: SignUpInput) => send<AccountPayload>("/auth/sign-up", "POST", input),
+    signOut: () => send("/auth/sign-out", "POST", {}),
+    requestPasswordReset: (input: PasswordResetInput) => send("/auth/password-reset", "POST", input),
+    confirmPasswordReset: (input: PasswordResetConfirmInput) =>
+      send<AccountPayload>("/auth/password-reset/confirm", "POST", input),
+    changePassword: (input: PasswordChangeInput) =>
+      send<{ otherDevicesSignedOut: number }>("/auth/password", "POST", input),
+    resendVerification: () =>
+      send<{ emailSent: boolean; alreadyVerified: boolean }>("/auth/verify-email", "POST", {}),
+    updateProfile: (input: ProfileInput) => send<AccountPayload>("/auth/account", "PATCH", input),
+    requestEmailChange: (input: EmailChangeInput) =>
+      send<{ pendingEmail: string; emailSent: boolean }>("/auth/account", "PATCH", input),
+    confirmEmailChange: (emailToken: string) =>
+      send<AccountPayload>("/auth/account", "PATCH", { emailToken }),
+    listSessions: () => send<{ sessions: SessionDeviceView[] }>("/auth/sessions", "GET"),
+    revokeSessions: (sessionId?: string) =>
+      send<{ revoked: number }>("/auth/sessions", "DELETE", sessionId ? { sessionId } : {}),
+    deleteAccount: (input: DeleteAccountInput) => send("/auth/account", "DELETE", input),
   };
 }
 
@@ -80,4 +132,6 @@ function createHttpAuthService(baseUrl: string): AuthService {
  */
 const apiUrl = process.env.NEXT_PUBLIC_API_URL?.replace(/\/$/, "");
 
-export const authService: AuthService = apiUrl ? createHttpAuthService(apiUrl) : unconfiguredAuthService;
+export const authService: AuthService = apiUrl
+  ? createHttpAuthService(apiUrl)
+  : unconfiguredAuthService;

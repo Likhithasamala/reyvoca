@@ -2,12 +2,10 @@ import { siteConfig } from "@/config/site";
 import { industries } from "@/config/industries";
 import { callLanguages } from "@/config/languages";
 import { SiteNav } from "@/components/layout/site-nav";
-import { AgentTraits } from "@/components/marketing/agent-traits";
 import { BookDemo } from "@/components/marketing/book-demo";
 import { CallAnatomy } from "@/components/marketing/call-anatomy";
 import { Faq } from "@/components/marketing/faq";
 import { FinalCta } from "@/components/marketing/final-cta";
-import { HowItWorks } from "@/components/marketing/how-it-works";
 import { Industries } from "@/components/marketing/industries";
 import { Languages } from "@/components/marketing/languages";
 import { Lights } from "@/components/marketing/lights";
@@ -52,14 +50,13 @@ export default function HomePage() {
       <SiteNav />
       <Opening />
       <Lights />
-      <HowItWorks />
       <CallAnatomy />
-      <AgentTraits />
       <Industries />
       <Languages />
       <Faq />
-      <FinalCta />
-      <BookDemo />
+      <FinalCta>
+        <BookDemo tone="night" />
+      </FinalCta>
     </>
   );
 }
