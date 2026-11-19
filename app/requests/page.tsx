@@ -28,7 +28,9 @@ const WHEN = new Intl.DateTimeFormat("en-GB", {
  */
 export default async function RequestsPage() {
   const user = await getSessionUser();
-  if (!user) redirect(routes.signIn);
+  // Remember where they were headed, so signing in finishes the journey
+  // instead of dumping them on the default page. proxy.ts used to add this.
+  if (!user) redirect(`${routes.signIn}?next=${encodeURIComponent(routes.requests)}`);
 
   const requests = await read((db) => db.demoRequests);
 

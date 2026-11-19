@@ -4,6 +4,7 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { ResetPasswordForm } from "@/components/auth/reset-password-form";
 import { pageMetadata } from "@/lib/metadata";
 import { peekToken, tokenProblemMessage } from "@/lib/server/tokens";
+import { redirectIfSignedIn } from "@/lib/server/page-guards";
 
 export const metadata = pageMetadata({
   title: "Choose a new password",
@@ -26,6 +27,11 @@ export const dynamic = "force-dynamic";
 export default async function ResetPasswordPage({ searchParams }: PageProps<"/reset-password">) {
   const { token } = await searchParams;
   const raw = typeof token === "string" ? token : "";
+
+  // A reset link is honoured even while signed in - someone resetting a
+  // password they have forgotten may well still have a live session - but
+  // the bare page with no token has nothing to offer them.
+  if (!raw) await redirectIfSignedIn(routes.account);
   const checked = raw ? await peekToken(raw, "password_reset") : null;
 
   const backToSignIn = (

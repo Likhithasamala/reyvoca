@@ -4,6 +4,7 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { GetStartedForm } from "@/components/auth/get-started-form";
 import { pageMetadata } from "@/lib/metadata";
 import { googleConfigured } from "@/lib/server/oauth/google";
+import { redirectIfSignedIn } from "@/lib/server/page-guards";
 
 /**
  * Not a public page. Reyvoca workspaces are opened by us on the demo call, so
@@ -20,7 +21,10 @@ export const metadata = pageMetadata({
 /** Read at request time so adding Google credentials needs no rebuild. */
 export const dynamic = "force-dynamic";
 
-export default function GetStartedPage() {
+export default async function GetStartedPage() {
+  // Signed in already: see lib/server/page-guards.ts.
+  await redirectIfSignedIn();
+
   return (
     <AuthShell
       title="Create your Reyvoca workspace"

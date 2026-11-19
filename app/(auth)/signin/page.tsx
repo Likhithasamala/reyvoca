@@ -4,6 +4,7 @@ import { SignInForm } from "@/components/auth/sign-in-form";
 import { AuthStatusNotice } from "@/components/auth/status-notice";
 import { pageMetadata } from "@/lib/metadata";
 import { googleConfigured } from "@/lib/server/oauth/google";
+import { redirectIfSignedIn } from "@/lib/server/page-guards";
 
 export const metadata = pageMetadata({
   title: "Sign In",
@@ -17,6 +18,10 @@ export const dynamic = "force-dynamic";
 
 export default async function SignInPage({ searchParams }: PageProps<"/signin">) {
   const { next, status } = await searchParams;
+  // Signed in already: there is nothing here for them. This used to be
+  // proxy.ts; see lib/server/page-guards.ts for why it moved.
+  await redirectIfSignedIn();
+
   // Only same-site paths are honoured: taking an absolute URL here would make
   // the sign-in page a redirector to anywhere.
   const safeNext =

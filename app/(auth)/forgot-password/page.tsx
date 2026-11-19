@@ -3,6 +3,7 @@ import { routes } from "@/config/site";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { ForgotPasswordForm } from "@/components/auth/forgot-password-form";
 import { pageMetadata } from "@/lib/metadata";
+import { redirectIfSignedIn } from "@/lib/server/page-guards";
 
 export const metadata = pageMetadata({
   title: "Reset Password",
@@ -11,7 +12,10 @@ export const metadata = pageMetadata({
   noIndex: true,
 });
 
-export default function ForgotPasswordPage() {
+export default async function ForgotPasswordPage() {
+  // Signed in already: see lib/server/page-guards.ts.
+  await redirectIfSignedIn();
+
   return (
     <AuthShell
       title="Reset your password"

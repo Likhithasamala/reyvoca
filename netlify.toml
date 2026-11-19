@@ -1,0 +1,16 @@
+# Netlify build settings.
+#
+# Hosting note: the Hobby/free tier on Vercel forbids commercial use, and
+# Reyvoca sells minutes, so the site runs on Netlify's free plan, which
+# permits commercial projects. Netlify builds Next.js through the OpenNext
+# adapter; it detects the framework itself, so no publish directory or
+# plugin is declared here — naming the wrong one breaks the adapter.
+
+[build]
+  command = "npm run build"
+
+[build.environment]
+  # Match the Node the app is developed and tested against. Left unpinned,
+  # Netlify picks its own default, which drifts and has broken Next majors
+  # before.
+  NODE_VERSION = "22"

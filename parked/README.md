@@ -74,3 +74,45 @@ already point at that path, so a restore needs no edits.
 
 Nothing was removed from `app/api/`, `lib/` or `types/`: the endpoints the
 workspace read are all still live, including `GET /api/dashboard/overview`.
+
+---
+
+## `proxy.ts` — the edge route guard
+
+Taken out of the build on **2026-11-19**, to deploy on Netlify.
+
+Next.js 16 renamed Middleware to Proxy and pinned it to the **Node.js
+runtime**; the docs are explicit that "the `runtime` config option is not
+available in Proxy files. Setting the `runtime` config option in Proxy will
+throw an error." Netlify bundles that handler into a Deno edge function, and
+the Node build of it imports `node:fs`, which the edge runtime does not
+provide — Netlify's own Next.js docs list filesystem access as unsupported in
+Node middleware. The deploy failed at "Bundling of edge function" with
+`Could not load edge function`. No configuration avoids it, so the file came
+out.
+
+**No security changed.** The proxy was always optimistic by design: it asked
+whether a session *cookie* was present, never whether it was valid, because it
+ran on every request including prefetches and so could not touch the database.
+Its own comment said so — "The real locks are `requireUser()` in
+`lib/server/session.ts` and the `redirect()` in each protected page; this only
+saves a render and keeps the URL tidy." Those locks were verified still in
+place before it was removed:
+
+| Surface | Enforced by |
+| --- | --- |
+| `/requests` | `getSessionUser()` then `redirect()` in the page |
+| `/account` | `redirect()` to sign-in, carrying `next` |
+| `/admin/*` | `notFound()` in `app/admin/layout.tsx` |
+| `app/api/*` | `requireUser()` → 401 |
+
+What it did do is now in `lib/server/page-guards.ts`, called from the four
+pages that need it. The guards are in fact *stricter* than the proxy was: they
+resolve a real session instead of sniffing for a cookie.
+
+Next's own guidance points the same way: "We recommend users avoid relying on
+Proxy unless no other options exist. Always verify authentication and
+authorization inside each Server Function rather than relying on Proxy alone."
+
+Restoring it would mean moving this file back to the repo root — and moving
+hosting to a platform that runs Node middleware natively.
