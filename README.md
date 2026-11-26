@@ -2,6 +2,10 @@
 
 **AI voice agents for real business conversations.**
 
+### → [View the live site: reyvoca.vercel.app](https://reyvoca.vercel.app)
+
+*Custom domain `reyvoca.in` is connected and awaiting registry propagation.*
+
 Reyvoca is a platform, currently in development, where businesses can create AI voice agents that hold natural phone conversations with customers, ground their answers in business knowledge, take actions in existing tools, and capture a structured outcome for every call.
 
 ---
