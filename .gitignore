@@ -65,3 +65,5 @@ next-env.d.ts
 
 # stray tool logs at the repo root
 /tailwindcss-*.log
+
+.vercel
