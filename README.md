@@ -29,11 +29,35 @@ The site does not claim customers, uptime figures or certifications. It describe
 
 ## Technology stack
 
-- **Next.js 16** (App Router, Turbopack), with every route statically prerendered
-- **React 19** and **TypeScript** (strict)
+**Framework**
+
+- **Next.js 16.3.8** (App Router, Turbopack), with every route statically prerendered
+- **React 19.2.8** and **TypeScript 5** in `strict` mode
+- Node.js 20.9+ (developed on Node 22)
+
+**Styling**
+
 - **Tailwind CSS v4**, with design tokens defined in `app/globals.css` via `@theme`
 - **Inter** loaded through `next/font`
-- **lucide-react** icons. There are no other runtime UI dependencies.
+- **lucide-react** icons and **motion** for animation — the only runtime UI dependencies
+
+**Data and backend**
+
+- **Neon Postgres** through `@neondatabase/serverless`
+- Route Handlers under `app/api/` — the backend ships inside this same app, so
+  `npm run dev` serves the site and the API on one port with no extra service
+- Sessions are httpOnly cookies; passwords are hashed with Node `crypto` **scrypt**
+  and compared with `timingSafeEqual`. No auth library.
+
+**Voice**
+
+- **Sarvam Samvaad** via `sarvam-conv-ai-sdk` for the conversational voice agents
+
+**Tooling**
+
+- **ESLint 9** with `eslint-config-next`
+- `npm run typecheck` runs `next typegen && tsc --noEmit`
+- A custom SEO gate, `scripts/seo-check.mjs`, wired to a `PostToolUse` hook
 
 Interactivity is kept small. Client components are used only for the hero call simulation, the navbar scroll state, the mobile menu, the forms and the docs active-link state. The FAQ accordion uses native `<details>`, and scroll reveals are CSS-only (`animation-timeline: view()`). Both respect `prefers-reduced-motion`.
 
