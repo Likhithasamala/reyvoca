@@ -18,7 +18,7 @@ export function Pricing() {
   const tier = pricing.tiers[selected];
 
   return (
-    <section id={pricing.id} aria-labelledby="pricing-heading" className="bg-surface py-28 lg:py-36">
+    <section id={pricing.id} aria-labelledby="pricing-heading" className="bg-surface py-20 lg:py-24">
       <h2 id="pricing-heading" className="sr-only">
         Pricing
       </h2>

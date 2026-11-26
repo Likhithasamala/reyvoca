@@ -121,7 +121,7 @@ export function CallAnatomy() {
   const [active, setActive] = useState(0);
 
   return (
-    <section id={anatomy.id} aria-labelledby="anatomy-heading" className="bg-cream py-28 lg:py-36">
+    <section id={anatomy.id} aria-labelledby="anatomy-heading" className="bg-cream py-20 lg:py-24">
       <Container>
         <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">
           {anatomy.eyebrow}

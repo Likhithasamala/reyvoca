@@ -8,7 +8,7 @@ import { Container } from "@/components/ui/container";
  */
 export function Faq() {
   return (
-    <section id={faq.id} aria-labelledby="faq-heading" className="bg-canvas py-28 lg:py-36">
+    <section id={faq.id} aria-labelledby="faq-heading" className="bg-canvas py-20 lg:py-24">
       <Container className="grid grid-cols-1 gap-10 lg:grid-cols-12 lg:gap-8">
         <div className="lg:col-span-4">
           <h2 id="faq-heading" className="text-[clamp(2.25rem,4vw,3.5rem)] font-semibold text-ink lg:sticky lg:top-24">

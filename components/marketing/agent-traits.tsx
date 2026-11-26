@@ -10,7 +10,7 @@ import { Container } from "@/components/ui/container";
  */
 export function AgentTraits() {
   return (
-    <section id={agentSection.id} aria-labelledby="agent-heading" className="bg-accent-wash py-28 lg:py-36">
+    <section id={agentSection.id} aria-labelledby="agent-heading" className="bg-accent-wash py-20 lg:py-24">
       <Container>
         <div className="max-w-[52ch]">
           <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">

@@ -11,7 +11,7 @@ import { Container } from "@/components/ui/container";
  */
 export function Languages() {
   return (
-    <section id={languagesSection.id} aria-labelledby="languages-heading" className="bg-cream py-28 lg:py-36">
+    <section id={languagesSection.id} aria-labelledby="languages-heading" className="bg-cream py-20 lg:py-24">
       <Container>
         <div className="max-w-[52ch]">
           <p className="text-[0.6875rem] font-semibold tracking-[0.16em] text-accent-strong uppercase">

@@ -199,7 +199,7 @@ export function BuildGrid() {
   const reducedMotion = useReducedMotion();
 
   return (
-    <section id={build.id} aria-labelledby="build-heading" className="bg-canvas py-28 lg:py-36">
+    <section id={build.id} aria-labelledby="build-heading" className="bg-canvas py-20 lg:py-24">
       <Container>
         <h2 id="build-heading" className="text-h2 font-semibold text-ink">
           {build.heading}

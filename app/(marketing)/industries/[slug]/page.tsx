@@ -62,7 +62,7 @@ export default async function IndustryPage({ params }: PageProps<"/industries/[s
         </Container>
       </section>
 
-      <section aria-labelledby="problems-heading" className="bg-surface py-20 lg:py-28">
+      <section aria-labelledby="problems-heading" className="bg-surface py-20 lg:py-24">
         <Container>
           <h2 id="problems-heading" className="max-w-[24ch] text-h3 font-semibold text-ink text-balance">
             What this looks like today
@@ -77,7 +77,7 @@ export default async function IndustryPage({ params }: PageProps<"/industries/[s
         </Container>
       </section>
 
-      <section aria-labelledby="handles-heading" className="bg-canvas py-20 lg:py-28">
+      <section aria-labelledby="handles-heading" className="bg-canvas py-20 lg:py-24">
         <Container>
           <h2 id="handles-heading" className="max-w-[24ch] text-h3 font-semibold text-ink text-balance">
             What the agent does on the call

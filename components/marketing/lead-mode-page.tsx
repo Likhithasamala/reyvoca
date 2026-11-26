@@ -77,7 +77,7 @@ export function LeadModePage({ mode }: { mode: LeadMode }) {
       </section>
 
       {/* ------------------------------------------------ the flow */}
-      <section aria-labelledby="flow-heading" className="bg-canvas py-20 lg:py-28">
+      <section aria-labelledby="flow-heading" className="bg-canvas py-20 lg:py-24">
         <Container>
           <h2 id="flow-heading" className="max-w-[24ch] text-h3 font-semibold text-ink text-balance">
             {mode.flowLabel}, step by step

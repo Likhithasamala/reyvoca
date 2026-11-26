@@ -27,7 +27,7 @@ export default async function InfoPage({ params }: PageProps<"/[page]">) {
   return (
     <section className="relative isolate overflow-hidden">
       <Navbar />
-      <Container className="max-w-3xl py-20 lg:py-28">
+      <Container className="max-w-3xl py-20 lg:py-24">
         <h1 className="text-h2 font-semibold text-ink text-balance">{page.title}</h1>
         <p className="mt-4 text-lead text-ink-muted">{page.description}</p>
         <div className="mt-10 space-y-5 border-t border-line pt-10 text-[1.0625rem] leading-relaxed text-ink-muted">

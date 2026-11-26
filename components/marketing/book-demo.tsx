@@ -90,7 +90,7 @@ export function BookDemo({ tone = "paper" }: { tone?: BookDemoTone } = {}) {
     <section
       id="book-demo"
       aria-labelledby="book-demo-heading"
-      className={cn("py-24 lg:py-32", night ? "bg-transparent lg:py-36" : "bg-canvas")}
+      className={cn("py-20 lg:py-24", night ? "bg-transparent lg:py-24" : "bg-canvas")}
     >
       <Container className="grid gap-12 lg:grid-cols-[1fr_1.1fr] lg:gap-20">
         <div className={cn("max-w-md", night && "reveal lg:pt-2")}>

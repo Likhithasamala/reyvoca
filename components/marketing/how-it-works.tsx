@@ -13,7 +13,7 @@ export function HowItWorks() {
     <section
       id={howItWorks.id}
       aria-labelledby="how-it-works-heading"
-      className="bg-canvas py-28 lg:py-36"
+      className="bg-canvas py-20 lg:py-24"
     >
       <Container>
         <h2 id="how-it-works-heading" className="text-h2 font-semibold text-ink">

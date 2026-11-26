@@ -226,7 +226,7 @@ function StaticClose({
     <div data-night-close>
       <section
         aria-labelledby={headingId}
-        className="relative isolate overflow-hidden py-28 lg:py-36"
+        className="relative isolate overflow-hidden py-20 lg:py-24"
         style={{
           background: `linear-gradient(to bottom, ${IVORY} 0%, ${IVORY} 18%, ${ORANGE} 42%, ${ORANGE_DEEP} 84%, ${DARK} 100%)`,
         }}
